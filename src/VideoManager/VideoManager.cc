@@ -79,16 +79,18 @@ void VideoManager::registerQmlTypes()
 #endif
 }
 
-void VideoManager::init(QQuickWindow *window)
+void VideoManager::init(QQuickWindow *mainWindow)
 {
     if (_initialized) {
+        qCDebug(VideoManagerLog) << "Video Manager already initialized";
         return;
     }
 
-    if (!window) {
-        qCCritical(VideoManagerLog) << "Failed To Init Video Manager - window is NULL";
+    if (!mainWindow) {
+        qCCritical(VideoManagerLog) << "Failed To Init Video Manager - mainWindow is NULL";
         return;
     }
+    _mainWindow = mainWindow;
 
     // TODO: VideoSettings _configChanged/streamConfiguredChanged
     (void) connect(_videoSettings->videoSource(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
@@ -101,6 +103,25 @@ void VideoManager::init(QQuickWindow *window)
 
     (void) connect(this, &VideoManager::autoStreamConfiguredChanged, this, &VideoManager::_videoSourceChanged);
 
+    _mainWindow->scheduleRenderJob(new FinishVideoInitialization(), QQuickWindow::BeforeSynchronizingStage);
+
+    _initialized = true;
+}
+
+void VideoManager::_initAfterQmlIsReady()
+{
+    if (_initAfterQmlIsReadyDone) {
+        qCWarning(VideoManagerLog) << "_initAfterQmlIsReady called multiple times";
+        return;
+    }
+    if (!_mainWindow) {
+        qCCritical(VideoManagerLog) << "_initAfterQmlIsReady called with NULL mainWindow";
+        return;
+    }
+    _initAfterQmlIsReadyDone = true;
+
+    qCDebug(VideoManagerLog) << "_initAfterQmlIsReady";
+
     static const QStringList videoStreamList = {
         "videoContent",
         "thermalVideo"
@@ -112,12 +133,8 @@ void VideoManager::init(QQuickWindow *window)
         }
         receiver->setName(streamName);
 
-        _initVideoReceiver(receiver, window);
+        _initVideoReceiver(receiver, _mainWindow);
     }
-
-    window->scheduleRenderJob(new FinishVideoInitialization(), QQuickWindow::BeforeSynchronizingStage);
-
-    _initialized = true;
 }
 
 void VideoManager::cleanup()
@@ -790,6 +807,8 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
 void VideoManager::startVideo()
 {
+    qCDebug(VideoManagerLog) << "startVideo";
+
     if (!hasVideo()) {
         qCDebug(VideoManagerLog) << "Stream not enabled/configured";
         return;
@@ -813,5 +832,6 @@ FinishVideoInitialization::~FinishVideoInitialization()
 
 void FinishVideoInitialization::run()
 {
-    VideoManager::instance()->startVideo();
+    qCDebug(VideoManagerLog) << "FinishVideoInitialization::run";
+    VideoManager::instance()->_initAfterQmlIsReady();
 }
