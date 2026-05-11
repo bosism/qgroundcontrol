@@ -415,7 +415,7 @@ ApplicationWindow {
 
                             QGCLabel {
                                 id:                     versionLabel
-                                text:                   qsTr("%1 Version").arg(QGroundControl.appName)
+                                text:                   qsTr("%1 Matvey Version").arg(QGroundControl.appName)
                                 font.pointSize:         ScreenTools.smallFontPointSize
                                 wrapMode:               QGCLabel.WordWrap
                                 Layout.maximumWidth:    parent.width
