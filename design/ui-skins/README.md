@@ -66,8 +66,9 @@ PX4 quadrotor connected:
 | `screenshots/real/stealth-real-desktop-fly.jpg` | Fly view, 1920×1080 |
 | `screenshots/real/stealth-real-desktop-plan.jpg` | Plan view, 1920×1080 |
 
-Only the palette is applied at this stage (see `custom/README.md`), so the
-widgets are still stock. The map background is a locally generated dark
+The Fly view screenshots show the palette plus the first two Stealth widgets,
+the HUD and the telemetry bar (see `custom/README.md`); everything else is
+still stock. The map background is a locally generated dark
 terrain tile set served by `preview/tileserver.py`, because the preview
 machine had no access to map tile servers.
 

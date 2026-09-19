@@ -164,6 +164,7 @@ void CustomPlugin::paletteOverride(const QString &colorName, QGCPalette::Palette
 QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
 {
     _qmlEngine = QGCCorePlugin::createQmlApplicationEngine(parent);
+    _qmlEngine->addImportPath(QStringLiteral("qrc:/qml"));
     _selector = new CustomOverrideInterceptor();
     _qmlEngine->addUrlInterceptor(_selector);
 

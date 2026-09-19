@@ -10,11 +10,23 @@ minimum needed to see the skin in a real build:
 - app name `QGC-Stealth`, custom icon and vehicle icon
 - PX4-only firmware set, as in the example
 
-The example's demo instrument widget and toolbar overrides were removed so the
-stock layout shows with the new palette. Widget replacements (HUD tapes, status
-board, telemetry bar) come next and go through the URL interceptor in
-`CustomPlugin.cc`, which swaps any stock QML file for a copy under the
-`/Custom/qml` resource prefix.
+- Stealth HUD (`res/Custom/Widgets/StealthHud.qml`): heading tape, ground
+  speed and altitude tapes, artificial horizon with pitch ladder and roll
+  scale, flight mode and vertical speed in the footer. Drawn with a `Canvas`
+  from the active vehicle's facts, repainted at 10 Hz.
+- Stealth telemetry bar (`res/Custom/Widgets/StealthTelemetryBar.qml`): six
+  label-over-value cells (altitude, ground speed, vertical speed, distance to
+  home, heading, flight time) in the monospace font.
+
+Both replace the stock bottom-right row of the Fly View through
+`src/FlyViewBottomRightRowLayout.qml`, which the URL interceptor in
+`CustomPlugin.cc` substitutes for the stock file (any stock QML file can be
+overridden the same way by placing a copy under the `/Custom/qml` resource
+prefix in `custom.qrc`). The widgets live in the `Custom.Widgets` QML module
+built by `CMakeLists.txt`.
+
+Colours come from `QGCPalette` only, so the NVG or Neon palettes from
+`design/ui-skins/README.md` apply to these widgets unchanged.
 
 Build exactly like stock QGC; CMake enables the custom build automatically when
 this directory exists:
