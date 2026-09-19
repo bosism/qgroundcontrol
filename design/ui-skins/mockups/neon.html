@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>QGC skin mockup: Neon Command</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root {
+  --bg: #03070d;
+  --panel: rgba(5, 14, 26, 0.80);
+  --panel-solid: #071324;
+  --border: rgba(31, 209, 249, 0.35);
+  --border-hi: rgba(31, 209, 249, 0.8);
+  --text: #d6eef8;
+  --muted: #5f8fa8;
+  --accent: #1fd1f9;    /* cyan */
+  --accent2: #ff3ea5;   /* magenta */
+  --ok: #35f0a8;
+  --warn: #ffb020;
+  --crit: #ff3b5c;
+  --glow: 0 0 10px rgba(31, 209, 249, 0.55), 0 0 22px rgba(31, 209, 249, 0.25);
+  --map-bg: #040b16;
+  --map-hi: rgba(20, 60, 90, 0.35);
+  --map-contour: rgba(31, 140, 190, 0.18);
+  --map-water: rgba(12, 60, 100, 0.85);
+  --map-road: rgba(60, 120, 160, 0.45);
+  --map-building: rgba(40, 90, 130, 0.45);
+  --map-grid: rgba(31, 209, 249, 0.07);
+  --map-gridtext: rgba(31, 209, 249, 0.4);
+  --font-ui: 'Rajdhani', 'Liberation Sans', sans-serif;
+  --font-head: 'Orbitron', 'Liberation Sans', sans-serif;
+  --font-num: 'Share Tech Mono', 'DejaVu Sans Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-ui); font-size: 16px; }
+#map { position: absolute; inset: 0; }
+#hex { position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'><path d='M28 0 L56 16 L56 48 L28 64 L0 48 L0 16 Z M28 64 L56 80 L56 112 M28 64 L0 80 L0 112' fill='none' stroke='rgba(31,209,249,0.08)' stroke-width='1'/></svg>"); }
+#scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.12) 0 1px, transparent 1px 4px); mix-blend-mode: multiply; }
+#vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%); }
+.num { font-family: var(--font-num); }
+.head { font-family: var(--font-head); text-transform: uppercase; letter-spacing: 0.18em; font-size: 12px; color: var(--accent); }
+.panel { position: absolute; background: var(--panel); border: 1px solid var(--border); box-shadow: inset 0 0 30px rgba(31,209,249,0.05), 0 0 18px rgba(0,0,0,0.5); }
+.cham { clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+.brk { position: absolute; width: 14px; height: 14px; border: 2px solid var(--accent); box-shadow: var(--glow); }
+.brk.tl { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.brk.tr { top: -1px; right: -1px; border-left: 0; border-bottom: 0; }
+.brk.bl { bottom: -1px; left: -1px; border-right: 0; border-top: 0; }
+.brk.br { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+.ptitle { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--border); background: linear-gradient(90deg, rgba(31,209,249,0.14), transparent 70%); }
+.ptitle span:last-child { font-family: var(--font-num); font-size: 12px; color: var(--muted); }
+svg.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- toolbar ---------- */
+#toolbar { position: absolute; top: 0; left: 0; right: 0; height: 64px; background: linear-gradient(180deg, rgba(5,14,26,0.95), rgba(5,14,26,0.75)); border-bottom: 1px solid var(--border); display: flex; align-items: center; }
+#toolbar::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent) 70%, transparent); box-shadow: var(--glow); }
+#toolbar .logo { width: 72px; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border); }
+#toolbar .logo div { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), #0b6b8f); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 700; color: #03070d; font-size: 18px; box-shadow: var(--glow); }
+.status { margin-left: 16px; padding: 8px 26px; font-family: var(--font-head); font-size: 15px; letter-spacing: 0.22em; text-transform: uppercase; color: #03070d; background: var(--ok); clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); box-shadow: 0 0 14px rgba(53,240,168,0.5); }
+.gauge { display: flex; align-items: center; gap: 10px; padding: 0 16px; height: 100%; border-right: 1px solid var(--border); }
+.gauge:first-of-type { border-left: 1px solid var(--border); margin-left: 18px; }
+.gauge svg { width: 44px; height: 44px; transform: rotate(-90deg); }
+.gauge circle { fill: none; stroke-width: 4; }
+.gauge .bgc { stroke: rgba(31,209,249,0.15); }
+.gauge .fgc { stroke: var(--accent); stroke-linecap: round; filter: drop-shadow(0 0 4px var(--accent)); }
+.gauge .txt { display: flex; flex-direction: column; }
+.gauge .l { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.gauge .v { font-family: var(--font-num); font-size: 19px; line-height: 1.1; color: var(--text); }
+.gauge .v.ok { color: var(--ok); }
+.tb-right { margin-left: auto; display: flex; height: 100%; }
+.chip { display: flex; align-items: center; gap: 10px; padding: 0 18px; border-left: 1px solid var(--border); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.chip b { color: var(--accent); font-family: var(--font-num); font-size: 17px; letter-spacing: 0; font-weight: 400; text-shadow: var(--glow); }
+.pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+
+/* ---------- left strip ---------- */
+#strip { position: absolute; top: 84px; left: 18px; display: flex; flex-direction: column; gap: 10px; }
+#strip .hexb { width: 78px; height: 88px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: rgba(5,14,26,0.85); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+#strip .hexb::before { content: ''; position: absolute; inset: 2px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--border); z-index: -1; }
+#strip .hexb { outline: 0; }
+#strip .hexb svg { width: 26px; height: 26px; color: var(--accent); filter: drop-shadow(0 0 4px var(--accent)); }
+#strip .hexb.primary { color: var(--accent); background: rgba(31,209,249,0.18); }
+#strip .hexb.danger svg { color: var(--crit); filter: drop-shadow(0 0 4px var(--crit)); }
+
+/* ---------- top right: payload ---------- */
+#payload { top: 84px; right: 18px; width: 300px; }
+#payload .body { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+#payload .gim { width: 90px; height: 90px; border-radius: 50%; border: 1px solid var(--border-hi); position: relative; background: radial-gradient(circle, rgba(31,209,249,0.12), transparent 70%); box-shadow: var(--glow); }
+#payload .gim::before { content: ''; position: absolute; left: 50%; top: 50%; width: 2px; height: 34px; background: var(--accent); transform-origin: top; transform: rotate(-168deg); }
+#payload .gim::after { content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px; border-radius: 50%; background: var(--accent); box-shadow: var(--glow); }
+#payload .kv { flex: 1; font-size: 13px; }
+#payload .kv div { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(31,209,249,0.1); }
+#payload .kv span:first-child { color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px; }
+#payload .kv span:last-child { font-family: var(--font-num); }
+#payload .btns { display: flex; gap: 8px; padding: 0 14px 12px; }
+#payload .b { flex: 1; padding: 8px; text-align: center; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; border: 1px solid var(--border-hi); clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+#payload .b.rec { background: rgba(255,59,92,0.2); border-color: var(--crit); color: var(--crit); text-shadow: 0 0 8px var(--crit); }
+
+/* ---------- systems ---------- */
+#sys { top: 262px; right: 18px; width: 300px; }
+#sys .row { display: grid; grid-template-columns: 74px 1fr 56px; align-items: center; gap: 10px; padding: 7px 14px; font-size: 12px; }
+#sys .row span:first-child { color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; font-size: 11px; }
+#sys .bar { height: 8px; background: rgba(31,209,249,0.12); position: relative; clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 0 100%); }
+#sys .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); box-shadow: var(--glow); }
+#sys .bar.warn i { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+#sys .bar.ok i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+#sys .row span:last-child { font-family: var(--font-num); text-align: right; }
+
+/* ---------- radar compass / attitude ---------- */
+#radar { position: absolute; right: 30px; bottom: 30px; width: 380px; height: 380px; }
+#radar svg { width: 100%; height: 100%; }
+#radar .sweep { position: absolute; left: 50%; top: 50%; width: 300px; height: 300px; margin: -150px; border-radius: 50%; background: conic-gradient(from 78deg, rgba(31,209,249,0.0) 0deg, rgba(31,209,249,0.0) 270deg, rgba(31,209,249,0.45) 360deg); mask: radial-gradient(circle, transparent 20%, #000 21%); -webkit-mask: radial-gradient(circle, transparent 20%, #000 21%); }
+
+/* ---------- telemetry ---------- */
+#telem { position: absolute; bottom: 28px; left: 522px; display: flex; gap: 6px; }
+#telem .cell { width: 132px; padding: 8px 12px 6px; background: var(--panel); border: 1px solid var(--border); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+#telem .lbl { font-size: 10px; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; }
+#telem .val { font-family: var(--font-num); font-size: 30px; line-height: 1.15; color: var(--accent); text-shadow: var(--glow); }
+#telem .val small { font-size: 12px; color: var(--muted); margin-left: 3px; font-family: var(--font-ui); text-shadow: none; }
+#telem .val.mag { color: var(--accent2); text-shadow: 0 0 10px rgba(255,62,165,0.6); }
+
+/* ---------- video ---------- */
+#video { position: absolute; bottom: 132px; left: 118px; width: 380px; height: 214px; background: #000; border: 1px solid var(--border); overflow: hidden; }
+#video .feed { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 120%, rgba(30,90,110,0.5), transparent 60%), linear-gradient(180deg, #071523 0%, #0b2032 45%, #050d16 46%, #03070d 100%); }
+#video .feed::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(31,209,249,0.05) 0 1px, transparent 1px 3px); }
+#video .tag { position: absolute; top: 8px; left: 10px; font-family: var(--font-head); font-size: 10px; letter-spacing: 0.2em; color: var(--accent); }
+#video .tag2 { position: absolute; top: 8px; right: 10px; font-family: var(--font-num); font-size: 11px; color: var(--muted); }
+#video .ret { position: absolute; left: 50%; top: 50%; width: 90px; height: 90px; transform: translate(-50%, -50%); border: 1px solid rgba(31,209,249,0.5); border-radius: 50%; }
+#video .ret::before, #video .ret::after { content: ''; position: absolute; background: var(--accent); box-shadow: var(--glow); }
+#video .ret::before { left: 50%; top: -12px; width: 1px; height: calc(100% + 24px); }
+#video .ret::after { top: 50%; left: -12px; height: 1px; width: calc(100% + 24px); }
+#video .tgt { position: absolute; left: 236px; top: 92px; width: 44px; height: 30px; border: 1px solid var(--accent2); box-shadow: 0 0 8px rgba(255,62,165,0.6); }
+#video .tgt span { position: absolute; top: -16px; left: 0; font-family: var(--font-num); font-size: 10px; color: var(--accent2); white-space: nowrap; }
+#video .foot { position: absolute; bottom: 8px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-family: var(--font-num); font-size: 11px; }
+
+/* ---------- mission ---------- */
+#mission { bottom: 28px; left: 118px; width: 380px; }
+#mission .track { position: relative; height: 22px; margin: 12px 16px 4px; }
+#mission .track::before { content: ''; position: absolute; left: 0; right: 0; top: 10px; height: 1px; background: var(--border-hi); }
+#mission .fill { position: absolute; left: 0; top: 9px; height: 3px; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+#mission .wp { position: absolute; top: 5px; width: 11px; height: 11px; transform: translateX(-50%) rotate(45deg); background: var(--panel-solid); border: 1px solid var(--border-hi); }
+#mission .wp.done { background: var(--ok); border-color: var(--ok); }
+#mission .wp.cur { background: var(--accent); border-color: var(--accent); box-shadow: var(--glow); }
+#mission .meta { display: flex; justify-content: space-between; padding: 0 16px 10px; font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+#mission .meta b { color: var(--text); font-family: var(--font-num); font-weight: 400; font-size: 13px; letter-spacing: 0; }
+
+/* ---------- messages / alerts ---------- */
+#alert { position: absolute; top: 84px; left: 50%; transform: translateX(-50%); width: 560px; }
+#alert .line { display: flex; gap: 12px; align-items: center; padding: 7px 14px; font-size: 13px; background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--ok); margin-bottom: 6px; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%); }
+#alert .line.warn { border-left-color: var(--warn); }
+#alert .t { font-family: var(--font-num); color: var(--muted); }
+
+#scale { position: absolute; left: 118px; top: 84px; font-size: 11px; letter-spacing: 0.16em; color: var(--muted); }
+#scale .bar { width: 120px; height: 6px; border: 1px solid var(--accent); border-top: 0; margin-top: 4px; box-shadow: var(--glow); }
+#coord { position: absolute; left: 118px; top: 122px; font-family: var(--font-num); font-size: 12px; color: var(--muted); }
+#coord b { color: var(--accent); font-weight: 400; }
+#vehsel { position: absolute; left: 118px; top: 152px; display: flex; gap: 6px; }
+#vehsel .v { padding: 5px 14px; border: 1px solid var(--border); background: var(--panel); font-size: 11px; letter-spacing: 0.16em; color: var(--muted); clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+#vehsel .v.on { border-color: var(--accent); color: var(--accent); background: rgba(31,209,249,0.15); box-shadow: var(--glow); }
+
+/* threat callout on map */
+#threat { position: absolute; left: 402px; top: 372px; font-family: var(--font-num); font-size: 11px; color: var(--warn); }
+#threat .l { position: absolute; left: 0; top: 14px; width: 60px; height: 1px; background: var(--warn); transform: rotate(-30deg); transform-origin: left; }
+#threat .box { position: absolute; left: 54px; top: -30px; padding: 4px 8px; border: 1px solid var(--warn); background: var(--panel); white-space: nowrap; }
+</style>
+</head>
+<body>
+<canvas id="map" width="1920" height="1080"></canvas>
+<div id="hex"></div>
+<div id="vig"></div>
+
+<div id="toolbar">
+  <div class="logo"><div>Q</div></div>
+  <div class="status">Ready to fly</div>
+  <div class="gauge"><svg viewBox="0 0 44 44"><circle class="bgc" cx="22" cy="22" r="18"/><circle class="fgc" cx="22" cy="22" r="18" stroke-dasharray="113" stroke-dashoffset="9"/></svg><div class="txt"><span class="l">GPS RTK</span><span class="v">14 SAT</span></div></div>
+  <div class="gauge"><svg viewBox="0 0 44 44"><circle class="bgc" cx="22" cy="22" r="18"/><circle class="fgc" cx="22" cy="22" r="18" stroke-dasharray="113" stroke-dashoffset="9" style="stroke: var(--ok)"/></svg><div class="txt"><span class="l">Battery</span><span class="v ok">92%</span></div></div>
+  <div class="gauge"><svg viewBox="0 0 44 44"><circle class="bgc" cx="22" cy="22" r="18"/><circle class="fgc" cx="22" cy="22" r="18" stroke-dasharray="113" stroke-dashoffset="2"/></svg><div class="txt"><span class="l">Datalink</span><span class="v">-71 dBm</span></div></div>
+  <div class="gauge"><svg viewBox="0 0 44 44"><circle class="bgc" cx="22" cy="22" r="18"/><circle class="fgc" cx="22" cy="22" r="18" stroke-dasharray="113" stroke-dashoffset="3"/></svg><div class="txt"><span class="l">RC</span><span class="v">98%</span></div></div>
+  <div class="gauge"><svg class="ic" viewBox="0 0 24 24" style="transform:none;width:22px;height:22px;color:var(--accent)"><path d="M3 12h3l2-6 3 12 3-9 2 3h5"/></svg><div class="txt"><span class="l">Mode</span><span class="v">HOLD</span></div></div>
+  <div class="gauge"><span class="pulse"></span><div class="txt"><span class="l">Messages</span><span class="v">0</span></div></div>
+  <div class="tb-right">
+    <div class="chip">Op <b>BLUEFIN-14</b></div>
+    <div class="chip">Zulu <b>14:32:07</b></div>
+    <div class="chip"><span class="pulse"></span> Crypto <b>AES-256</b></div>
+    <div class="chip"><svg class="ic" viewBox="0 0 24 24" style="color:var(--accent)"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
+  </div>
+</div>
+
+<div id="strip">
+  <div class="hexb primary"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6"/><path d="M4 21h16"/></svg>Launch</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/><path d="M12 20v-6"/></svg>RTB</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></svg>Hold</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/></svg>Orbit</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4v14M6 12l6 6 6-6"/><path d="M4 21h16"/></svg>Land</div>
+  <div class="hexb danger"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>Kill</div>
+</div>
+
+<div id="scale">200 M<div class="bar"></div></div>
+<div id="coord">MGRS <b>32T NU 4912 2178</b> · 47.3969N 8.5486E</div>
+<div id="vehsel"><div class="v on">UAS-01</div><div class="v">UAS-02</div><div class="v">SWARM</div></div>
+<div id="threat"><div class="l"></div><div class="box">UNKNOWN TRACK · ADSB 4C3A · 1.2 km</div></div>
+
+<div id="alert">
+  <div class="line"><span class="t">14:31:58</span><span>WP 04 reached · survey leg 2/9 active</span></div>
+  <div class="line warn"><span class="t">14:30:12</span><span>Wind 9 m/s from 240° exceeds plan limit 7 m/s</span></div>
+</div>
+
+<div id="payload" class="panel">
+  <span class="brk tl"></span><span class="brk br"></span>
+  <div class="ptitle"><span class="head">Payload · EO/IR</span><span>ZOOM 4.0x</span></div>
+  <div class="body">
+    <div class="gim"></div>
+    <div class="kv">
+      <div><span>Pitch</span><span>-32.0°</span></div>
+      <div><span>Yaw</span><span>012.4°</span></div>
+      <div><span>LRF</span><span>418 m</span></div>
+      <div><span>Storage</span><span>118 GB</span></div>
+    </div>
+  </div>
+  <div class="btns"><div class="b rec" style="white-space:nowrap">● REC 04:12</div><div class="b">Photo</div><div class="b">Track</div></div>
+</div>
+
+<div id="sys" class="panel">
+  <span class="brk tl"></span><span class="brk br"></span>
+  <div class="ptitle"><span class="head">Systems</span><span>7 / 7 NOMINAL</span></div>
+  <div class="row"><span>Battery</span><div class="bar ok"><i style="width:92%"></i></div><span>92%</span></div>
+  <div class="row"><span>Link</span><div class="bar"><i style="width:88%"></i></div><span>-71</span></div>
+  <div class="row"><span>GPS</span><div class="bar"><i style="width:96%"></i></div><span>0.6</span></div>
+  <div class="row"><span>EKF</span><div class="bar ok"><i style="width:100%"></i></div><span>OK</span></div>
+  <div class="row"><span>Wind</span><div class="bar warn"><i style="width:70%"></i></div><span>9.0</span></div>
+  <div class="row"><span>CPU</span><div class="bar"><i style="width:34%"></i></div><span>34%</span></div>
+  <div class="row"><span>Fence</span><div class="bar ok"><i style="width:60%"></i></div><span>340</span></div>
+</div>
+
+<div id="radar">
+  <div class="sweep"></div>
+  <svg viewBox="0 0 380 380" font-family="Share Tech Mono, monospace" font-size="12">
+    <defs>
+      <radialGradient id="rg"><stop offset="0" stop-color="rgba(31,209,249,0.18)"/><stop offset="1" stop-color="rgba(5,14,26,0.85)"/></radialGradient>
+      <clipPath id="ball"><circle cx="190" cy="190" r="60"/></clipPath>
+    </defs>
+    <circle cx="190" cy="190" r="178" fill="url(#rg)" stroke="var(--border-hi)"/>
+    <circle cx="190" cy="190" r="150" fill="none" stroke="var(--border)"/>
+    <circle cx="190" cy="190" r="110" fill="none" stroke="var(--border)"/>
+    <circle cx="190" cy="190" r="70" fill="none" stroke="var(--border)"/>
+    <g stroke="var(--border)"><line x1="190" y1="12" x2="190" y2="368"/><line x1="12" y1="190" x2="368" y2="190"/></g>
+    <!-- compass ticks -->
+    <g id="ticks" stroke="var(--text)"></g>
+    <g fill="var(--accent)" font-family="Orbitron" font-size="13" text-anchor="middle">
+      <text x="190" y="34">N</text><text x="352" y="195">E</text><text x="190" y="356">S</text><text x="28" y="195">W</text>
+    </g>
+    <!-- attitude ball -->
+    <g clip-path="url(#ball)">
+      <g transform="translate(190,190) rotate(-6)">
+        <rect x="-100" y="-100" width="200" height="100" fill="rgba(31,120,180,0.35)"/>
+        <rect x="-100" y="0" width="200" height="100" fill="rgba(60,40,20,0.5)"/>
+        <line x1="-100" y1="0" x2="100" y2="0" stroke="var(--text)" stroke-width="1.5"/>
+        <g stroke="var(--text)" fill="var(--text)" font-size="9" text-anchor="middle">
+          <line x1="-22" y1="-20" x2="22" y2="-20"/><text x="-32" y="-17">10</text><text x="32" y="-17">10</text>
+          <line x1="-22" y1="20" x2="22" y2="20" stroke-dasharray="4 3"/><text x="-32" y="23">10</text><text x="32" y="23">10</text>
+          <line x1="-30" y1="-40" x2="30" y2="-40"/><line x1="-30" y1="40" x2="30" y2="40" stroke-dasharray="4 3"/>
+        </g>
+      </g>
+    </g>
+    <circle cx="190" cy="190" r="60" fill="none" stroke="var(--border-hi)"/>
+    <g stroke="var(--accent)" stroke-width="2" fill="none"><path d="M160 190h18l12 8 12-8h18"/></g>
+    <!-- vehicle heading pointer -->
+    <g transform="rotate(78 190 190)"><polygon points="190,20 197,42 183,42" fill="var(--accent)" style="filter:drop-shadow(0 0 6px var(--accent))"/></g>
+    <!-- waypoint bearing -->
+    <g transform="rotate(84 190 190)"><polygon points="190,58 195,68 185,68" fill="var(--ok)"/></g>
+    <!-- home bearing -->
+    <g transform="rotate(232 190 190)"><text x="190" y="66" fill="var(--warn)" text-anchor="middle" font-size="11">H</text></g>
+    <!-- contacts -->
+    <g fill="var(--ok)"><circle cx="262" cy="248" r="4"/><text x="270" y="252" font-size="10">UAS-02</text></g>
+    <g fill="none" stroke="var(--warn)"><polygon points="118,132 124,138 118,144 112,138"/></g>
+    <!-- readouts -->
+    <g fill="var(--accent)" font-size="15">
+      <rect x="160" y="352" width="60" height="22" fill="var(--panel-solid)" stroke="var(--accent)"/>
+      <text x="190" y="368" text-anchor="middle" style="text-shadow:var(--glow)">078°</text>
+    </g>
+    <g fill="var(--muted)" font-family="Rajdhani" font-size="11" letter-spacing="1.5">
+      <text x="14" y="30">RNG 300 m</text><text x="300" y="30" text-anchor="start">RLL -6°</text><text x="300" y="46">PCH +2°</text>
+    </g>
+  </svg>
+</div>
+
+<div id="telem">
+  <div class="cell"><div class="lbl">Alt AGL</div><div class="val">37.3<small>m</small></div></div>
+  <div class="cell"><div class="lbl">Ground spd</div><div class="val">12.4<small>m/s</small></div></div>
+  <div class="cell"><div class="lbl">Vert spd</div><div class="val">+0.2<small>m/s</small></div></div>
+  <div class="cell"><div class="lbl">Dist home</div><div class="val">412<small>m</small></div></div>
+  <div class="cell"><div class="lbl">Heading</div><div class="val mag">078<small>°</small></div></div>
+  <div class="cell"><div class="lbl">Flight time</div><div class="val">05:29</div></div>
+  <div class="cell"><div class="lbl">Endurance</div><div class="val">18:40</div></div>
+</div>
+
+<div id="video">
+  <div class="feed"></div>
+  <span class="brk tl"></span><span class="brk tr"></span><span class="brk bl"></span><span class="brk br"></span>
+  <div class="tag">EO · 4.0x</div>
+  <div class="tag2">1080p 30fps</div>
+  <div class="ret"></div>
+  <div class="tgt"><span>TGT-1 · 418 m</span></div>
+  <div class="foot"><span style="color:var(--accent)">PITCH -32°</span><span>LRF 418 m</span><span style="color:var(--accent2)">LOCK</span></div>
+</div>
+
+<div id="mission" class="panel cham">
+  <div class="ptitle"><span class="head">Mission</span><span>SURVEY · 7 WP</span></div>
+  <div class="track">
+    <div class="fill" style="width:44%"></div>
+    <div class="wp done" style="left:2%"></div><div class="wp done" style="left:18%"></div><div class="wp done" style="left:34%"></div>
+    <div class="wp cur" style="left:44%"></div><div class="wp" style="left:60%"></div><div class="wp" style="left:78%"></div><div class="wp" style="left:96%"></div>
+  </div>
+  <div class="meta"><span>Next <b>WP 04 · 212 m</b></span><span>ETA <b>00:18</b></span><span>Left <b>1.8 km</b></span></div>
+</div>
+
+<div id="scan"></div>
+
+<script src="map.js"></script>
+<script>
+const cs = getComputedStyle(document.documentElement);
+const v = n => cs.getPropertyValue(n).trim();
+drawTacticalMap(document.getElementById('map'), {
+  bg: v('--map-bg'), terrainHi: v('--map-hi'), contour: v('--map-contour'), water: v('--map-water'),
+  road: v('--map-road'), building: v('--map-building'), grid: v('--map-grid'), gridText: v('--map-gridtext'),
+  fence: v('--accent2'), mission: v('--accent'), missionActive: v('--ok'), survey: v('--accent'),
+  home: v('--warn'), trail: v('--accent'), ring: 'rgba(31,209,249,0.25)', vehicle: v('--accent'),
+  friend: v('--ok'), unknown: v('--warn'), font: 'Share Tech Mono',
+}, { seed: 11, vehicle: { x: 0.52 * 1920, y: 0.31 * 1080, hdg: 78 } });
+// compass ticks
+const t = document.getElementById('ticks');
+let s = '';
+for (let a = 0; a < 360; a += 10) {
+  const major = a % 30 === 0;
+  s += `<line x1="190" y1="12" x2="190" y2="${major ? 26 : 19}" transform="rotate(${a} 190 190)" stroke-width="${major ? 1.5 : 1}"/>`;
+}
+t.innerHTML = s;
+</script>
+</body>
+</html>
