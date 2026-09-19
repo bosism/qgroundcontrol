@@ -178,6 +178,10 @@ Rules from `AGENTS.md` still apply: sizes from `ScreenTools`, colours from
 QGC ships its own fonts under `resources/fonts` and exposes them through
 `ScreenTools`. Barlow Condensed (UI), Share Tech Mono (numbers) and Orbitron
 (headings, Neon only) are all OFL-licensed and can be bundled the same way.
+This branch adds two virtuals to `QGCCorePlugin`, `normalFontFamily()` and
+`fixedFontFamily()`, which `ScreenToolsController` consults before falling
+back to the stock families; the custom build registers its TTFs in `init()`
+and returns their family names. That is the only core change the skin needs.
 
 ## Follow-up prompt ideas
 

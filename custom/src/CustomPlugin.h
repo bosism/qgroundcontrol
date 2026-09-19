@@ -83,6 +83,9 @@ public:
     void adjustSettingMetaData(const QString &settingsGroup, FactMetaData &metaData, bool &userVisible) final;
     /// Hides whole settings groups (and their settings pages) that an FPV build does not need.
     bool overrideSettingsGroupVisibility(const QString &name) final;
+    /// Stealth typography: condensed UI text, monospace numbers (loaded in init()).
+    QString normalFontFamily() const final { return QStringLiteral("Barlow Condensed"); }
+    QString fixedFontFamily() const final { return QStringLiteral("Share Tech Mono"); }
     /// This modifies QGC colors palette to match possible custom corporate branding
     void paletteOverride(const QString &colorName, QGCPalette::PaletteColorInfo_t &colorInfo) final;
     /// We override this so we can get access to QQmlApplicationEngine and use it to register our qml module

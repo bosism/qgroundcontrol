@@ -1,4 +1,5 @@
 #include "ScreenToolsController.h"
+#include "QGCCorePlugin.h"
 #include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
 #include "SettingsManager.h"
@@ -59,6 +60,11 @@ QString ScreenToolsController::iOSDevice()
 
 QString ScreenToolsController::fixedFontFamily()
 {
+    const QString pluginFamily = QGCCorePlugin::instance()->fixedFontFamily();
+    if (!pluginFamily.isEmpty()) {
+        return pluginFamily;
+    }
+
     return QFontDatabase::systemFont(QFontDatabase::FixedFont).family();
 }
 
@@ -68,6 +74,11 @@ QString ScreenToolsController::normalFontFamily()
     const int langID = SettingsManager::instance()->appSettings()->qLocaleLanguage()->rawValue().toInt();
     if (langID == QLocale::Korean) {
         return QStringLiteral("NanumGothic");
+    }
+
+    const QString pluginFamily = QGCCorePlugin::instance()->normalFontFamily();
+    if (!pluginFamily.isEmpty()) {
+        return pluginFamily;
     }
 
     return QStringLiteral("Open Sans");

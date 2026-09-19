@@ -19,6 +19,7 @@
 #include "Viewer3DSettings.h"
 
 #include <QtCore/QSettings>
+#include <QtGui/QFontDatabase>
 
 #include <QtCore/QApplicationStatic>
 #include <QtQml/QQmlApplicationEngine>
@@ -60,6 +61,15 @@ CustomPlugin::CustomPlugin(QObject *parent)
 void CustomPlugin::init()
 {
     QGCCorePlugin::init();
+
+    // Skin typography (SIL Open Font License, see res/fonts). Must be registered before any QML loads.
+    for (const char *font : { ":/Custom/fonts/BarlowCondensed-Medium.ttf",
+                              ":/Custom/fonts/BarlowCondensed-SemiBold.ttf",
+                              ":/Custom/fonts/ShareTechMono-Regular.ttf" }) {
+        if (QFontDatabase::addApplicationFont(QString::fromLatin1(font)) < 0) {
+            qCWarning(CustomLog) << "Could not load font" << font;
+        }
+    }
 
     // Small-tablet FPV: video is the main window and the map picture-in-picture starts hidden.
     // These are plain QML global settings, so only seed them when the user has not chosen yet.

@@ -30,6 +30,15 @@ substitutes any stock QML file for a copy under the `/Custom/qml` prefix in
 Colours come from `QGCPalette` only, so the NVG or Neon palettes from
 `design/ui-skins/README.md` apply unchanged.
 
+## Typography
+
+`res/fonts/` ships Barlow Condensed (UI text, Medium and SemiBold) and Share
+Tech Mono (numbers), both under the SIL Open Font License (licence texts
+alongside). `CustomPlugin::init` registers them and the plugin returns them
+from `normalFontFamily()` / `fixedFontFamily()`, the two small hooks this
+branch adds to `QGCCorePlugin` (read by `ScreenToolsController`). Korean
+locales keep NanumGothic, as in stock QGC.
+
 ## FPV trim
 
 - Fly View tool strip (`src/FlyViewToolStripActionList.qml`): checklist, land,

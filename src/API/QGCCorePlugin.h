@@ -80,6 +80,12 @@ public:
     /// Allows a plugin to override the specified color name from the palette
     virtual void paletteOverride(const QString &colorName, QGCPalette::PaletteColorInfo_t &colorInfo) { Q_UNUSED(colorName); Q_UNUSED(colorInfo); };
 
+    /// Font family for normal UI text. Return an empty string to keep the stock font.
+    /// The plugin is responsible for registering the family with QFontDatabase (e.g. in init()).
+    virtual QString normalFontFamily() const { return QString(); }
+    /// Font family for fixed-width text. Return an empty string to keep the system fixed font.
+    virtual QString fixedFontFamily() const { return QString(); }
+
     virtual void factValueGridCreateDefaultSettings(FactValueGrid* factValueGrid);
 
     /// Allows the plugin to override or get access to the QmlApplicationEngine to do things like add import
