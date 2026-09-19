@@ -176,6 +176,28 @@
     ctx.font = `bold 12px ${pal.font}`;
     ctx.fillText('H', home[0], home[1] + 1);
 
+    // segment edit handles (plan view)
+    if (opts.handles) {
+      ctx.strokeStyle = pal.mission;
+      ctx.lineWidth = 1;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+        ctx.beginPath(); ctx.arc(mx, my, 5, 0, 6.3); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(mx - 3, my); ctx.lineTo(mx + 3, my); ctx.moveTo(mx, my - 3); ctx.lineTo(mx, my + 3); ctx.stroke();
+      }
+    }
+    // selected waypoint ring (plan view)
+    if (opts.selectedWp !== undefined) {
+      const p = pts[opts.selectedWp];
+      ctx.strokeStyle = pal.missionActive;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.arc(p[0], p[1], 20, 0, 6.3); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    if (opts.vehicle === null) return;
+
     // trail
     const veh = opts.vehicle || { x: 0.52 * W, y: 0.31 * H, hdg: 78 };
     ctx.strokeStyle = pal.trail;

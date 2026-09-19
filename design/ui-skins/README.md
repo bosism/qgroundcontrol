@@ -20,6 +20,7 @@ The plain upstream Fly View and Plan View screenshots ship with the docs:
 |------------|---------|---------------|
 | `screenshots/stealth-ops.jpg` | **A. Stealth Ops** – charcoal panels, amber accent, olive "go" green. Mil-style HUD (heading tape, speed/altitude tapes, pitch ladder, flight-path vector), system status board with square go/no-go lamps, mission progress strip, EO/IR inset with reticle and MGRS target readout. | `mockups/stealth.html` |
 | `screenshots/stealth-ops-nvg.jpg` | **A2. Stealth Ops, NVG variant** – same layout, monochrome phosphor-green palette for night/low-light use. Only CSS variables change. | `mockups/stealth-nvg.html` |
+| `screenshots/stealth-ops-plan.jpg` | **A3. Stealth Ops, Plan View** – same skin applied to mission planning. Plan statistics strip (distance, time, max telemetry range, photos, batteries, minimum terrain clearance, fence check), validation callouts, mission item list with the selected survey item expanded inline (altitude, grid angle, spacing, trigger distance, altitude reference, camera, per-item stats), segment edit handles and callouts on the map, terrain profile with a 50 m planning floor and the offending leg highlighted, and a primary "upload to vehicle" action. | `mockups/stealth-plan.html` |
 | `screenshots/neon-command.jpg` | **B. Neon Command** – sci-fi cyan/magenta on deep navy. Hexagonal tool-strip buttons, chamfered panels with corner brackets, ring gauges in the toolbar, glowing bar gauges, radar-style compass with attitude ball and sweep, hex-grid and scan-line overlays. | `mockups/neon.html` |
 
 Both concepts keep the stock Fly View arrangement so the mapping to QGC is
@@ -33,6 +34,7 @@ bottom-right.
 cd design/ui-skins/mockups
 node shoot.js stealth.html:../screenshots/stealth-ops.jpg \
               stealth-nvg.html:../screenshots/stealth-ops-nvg.jpg \
+              stealth-plan.html:../screenshots/stealth-ops-plan.jpg \
               neon.html:../screenshots/neon-command.jpg
 ```
 
@@ -103,6 +105,11 @@ Stock file to replace or wrap, and what the mockup puts there:
 | Mission progress strip | new, sits in `FlyViewWidgetLayer.qml` | Reads `missionController` current item and item count. |
 | Video inset with reticle | `src/FlyView/FlyViewVideo.qml` overlay layer | Reticle, gimbal pitch and LRF text are overlay items on top of the existing video output. |
 | Messages / alerts | `src/FlyView/VehicleWarnings.qml` and the message indicator | Stealth: dense log lines with severity bar. Neon: skewed alert chips. |
+| Plan toolbar and stats strip | `src/PlanView/PlanEditToolbar.qml`, `PlanToolBarIndicators.qml`, `MissionStats.qml` | Stats become label-over-value cells; upload is the highlighted action. |
+| Plan tool strip | `src/PlanView/PlanView.qml` (tool strip actions) | Same square-cell strip as the Fly View; active tool highlighted. |
+| Mission item list and inline editor | `src/PlanView/PlanViewRightPanel.qml`, `PlanTreeView.qml`, `MissionItemEditor.qml`, `SimpleItemEditor.qml`, `SurveyItemEditor.qml`, `TransectStyleComplexItemStats.qml` | Diamond index badges, mono sub-lines, selected item expands into a two-column field grid with segmented altitude-reference control. |
+| Validation callouts | `src/PlanView/MissionItemStatus.qml`, `PlanView.qml` | Severity-coded lines top-left of the map, mirrors the Fly View message panel. |
+| Terrain profile | `src/PlanView/TerrainStatus.qml` | Mission line over terrain fill, dashed planning floor, legs below the floor drawn in the warning colour. |
 | Scan-line / hex overlay (B) | `src/FlyView/FlyViewCustomLayer.qml` | Full-screen `Rectangle` with `ShaderEffect` or tiled image, `enabled: false` by default for readability. |
 
 Rules from `AGENTS.md` still apply: sizes from `ScreenTools`, colours from
@@ -136,6 +143,7 @@ New widgets:
 Other views in the same skin:
 
 - "Mock up the Plan View in the Neon Command skin: survey polygon editor, waypoint list, terrain profile strip."
+- "Mock up the Plan View fence and rally tabs in the Stealth skin, with a polygon vertex editor and rally point list."
 - "Mock up the Vehicle Setup and Application Settings pages in the Stealth skin."
 - "Mock up the toolbar indicator pop-ups (GPS, battery, RC) as chamfered dropdowns."
 

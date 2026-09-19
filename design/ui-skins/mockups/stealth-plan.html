@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>QGC skin mockup: Stealth Ops, Plan View</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root {
+  --bg: #0a0c0e;
+  --panel: rgba(15, 18, 21, 0.90);
+  --panel-solid: #121517;
+  --border: #2b3239;
+  --border-hi: #4a545c;
+  --text: #d9dde1;
+  --muted: #7d868e;
+  --accent: #f0b429;
+  --ok: #8bc34a;
+  --warn: #ff8a3d;
+  --crit: #ff4b4b;
+  --map-bg: #0d1113;
+  --map-hi: rgba(52, 62, 60, 0.35);
+  --map-contour: rgba(120, 135, 120, 0.22);
+  --map-water: rgba(30, 54, 66, 0.9);
+  --map-road: rgba(90, 96, 100, 0.55);
+  --map-building: rgba(70, 76, 80, 0.5);
+  --map-grid: rgba(150, 165, 175, 0.10);
+  --map-gridtext: rgba(150, 165, 175, 0.45);
+  --font-ui: 'Barlow Condensed', 'Liberation Sans', sans-serif;
+  --font-num: 'Share Tech Mono', 'DejaVu Sans Mono', monospace;
+}
+:root[data-variant="nvg"] {
+  --panel: rgba(6, 12, 8, 0.92);
+  --panel-solid: #0a140c;
+  --border: #1f3a26;
+  --border-hi: #2f5a3a;
+  --text: #b8f2c2;
+  --muted: #4f8a5c;
+  --accent: #79ff8a;
+  --ok: #79ff8a;
+  --warn: #d9ff5c;
+  --crit: #ffffff;
+  --map-bg: #061008;
+  --map-hi: rgba(40, 110, 55, 0.25);
+  --map-contour: rgba(90, 200, 110, 0.20);
+  --map-water: rgba(20, 60, 30, 0.9);
+  --map-road: rgba(90, 170, 100, 0.45);
+  --map-building: rgba(70, 150, 80, 0.4);
+  --map-grid: rgba(120, 255, 140, 0.10);
+  --map-gridtext: rgba(120, 255, 140, 0.45);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-ui); font-size: 16px; }
+#map { position: absolute; inset: 0; }
+.num { font-family: var(--font-num); }
+.panel { background: var(--panel); border: 1px solid var(--border); position: absolute; }
+.panel::before, .panel::after { content: ''; position: absolute; width: 10px; height: 10px; border-color: var(--accent); border-style: solid; opacity: 0.8; }
+.panel::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.panel::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+.ptitle { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+.ptitle b { color: var(--text); font-weight: 600; }
+svg.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.lbl { font-size: 11px; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; line-height: 1; }
+
+/* ---------- toolbar ---------- */
+#toolbar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; align-items: stretch; z-index: 2; }
+#toolbar .logo { width: 64px; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border); }
+#toolbar .logo div { width: 34px; height: 34px; border: 2px solid var(--accent); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--accent); font-size: 18px; }
+.mode { background: var(--accent); color: #0a0c0e; font-weight: 700; padding: 0 18px; display: flex; align-items: center; font-size: 18px; letter-spacing: 0.18em; text-transform: uppercase; }
+.fbtn { display: flex; align-items: center; gap: 8px; padding: 0 16px; border-right: 1px solid var(--border); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text); }
+.fbtn svg { color: var(--muted); }
+.fbtn.dim { color: var(--muted); }
+.fbtn.up { color: var(--accent); }
+.fbtn.up svg { color: var(--accent); }
+.tb-item { display: flex; align-items: center; gap: 10px; padding: 0 16px; border-right: 1px solid var(--border); }
+.tb-item .val { font-size: 20px; line-height: 1.05; font-family: var(--font-num); }
+.tb-item .val small { font-size: 12px; color: var(--muted); font-family: var(--font-ui); margin-left: 2px; }
+.tb-item .stack { display: flex; flex-direction: column; gap: 3px; }
+.tb-right { margin-left: auto; display: flex; }
+.chip { display: flex; align-items: center; gap: 8px; padding: 0 16px; border-left: 1px solid var(--border); font-size: 13px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.chip b { color: var(--text); font-family: var(--font-num); font-size: 16px; letter-spacing: 0; text-transform: none; font-weight: 400; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+.dot.warn { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+
+/* ---------- left tool strip ---------- */
+#strip { top: 72px; left: 16px; width: 84px; }
+#strip .btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 0 10px; border-bottom: 1px solid var(--border); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+#strip .btn:last-child { border-bottom: 0; }
+#strip .btn svg { width: 26px; height: 26px; color: var(--text); }
+#strip .btn.on { color: var(--accent); background: rgba(240,180,41,0.08); }
+#strip .btn.on svg { color: var(--accent); }
+#strip .btn.view { border-bottom: 2px solid var(--accent); }
+
+#scale { position: absolute; left: 116px; top: 124px; font-size: 12px; color: var(--muted); letter-spacing: 0.1em; }
+#scale .bar { width: 120px; height: 6px; border: 1px solid var(--muted); border-top: 0; margin-top: 4px; }
+#mgrs { position: absolute; left: 116px; top: 160px; font-size: 13px; color: var(--muted); }
+#mgrs b { color: var(--text); font-family: var(--font-num); font-weight: 400; }
+
+/* ---------- plan stats strip ---------- */
+#stats { top: 72px; left: 116px; display: flex; }
+#stats .cell { padding: 6px 16px 5px; border-right: 1px solid var(--border); min-width: 118px; }
+#stats .cell:last-child { border-right: 0; }
+#stats .val { font-family: var(--font-num); font-size: 20px; line-height: 1.15; }
+#stats .val small { font-size: 12px; color: var(--muted); font-family: var(--font-ui); margin-left: 2px; }
+#stats .val.warn { color: var(--warn); }
+#stats .val.acc { color: var(--accent); }
+
+/* ---------- map callouts ---------- */
+.callout { position: absolute; background: var(--panel); border: 1px solid var(--border); padding: 4px 8px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.callout b { color: var(--text); font-family: var(--font-num); font-weight: 400; }
+.callout.sel { border-color: var(--accent); color: var(--accent); }
+.callout.sel b { color: var(--accent); }
+
+/* ---------- right panel ---------- */
+#right { top: 72px; right: 16px; bottom: 16px; width: 430px; display: flex; flex-direction: column; }
+#tabs { display: flex; border-bottom: 1px solid var(--border); }
+#tabs div { flex: 1; text-align: center; padding: 9px 0; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--border); }
+#tabs div:last-child { border-right: 0; }
+#tabs div.on { color: var(--accent); border-bottom: 2px solid var(--accent); background: rgba(240,180,41,0.06); }
+#tabs div span { font-family: var(--font-num); letter-spacing: 0; margin-left: 6px; color: var(--muted); }
+#planinfo { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+#planinfo b { color: var(--text); font-family: var(--font-num); font-weight: 400; }
+.items { overflow: hidden; }
+#spacer { flex: 1; }
+.item { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+.item .idx { width: 22px; height: 22px; transform: rotate(45deg); background: var(--ok); color: #0a0c0e; font-family: var(--font-num); font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.item .idx span { transform: rotate(-45deg); }
+.item .idx.l { background: var(--text); }
+.item .idx.sel { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.item .idx.rtl { background: var(--muted); }
+.item .name { font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; font-size: 13px; }
+.item .sub { font-size: 12px; color: var(--muted); font-family: var(--font-num); }
+.item .r { text-align: right; font-family: var(--font-num); font-size: 13px; color: var(--muted); }
+.item .r b { color: var(--text); font-weight: 400; display: block; }
+.item.sel { background: rgba(240,180,41,0.08); border-left: 2px solid var(--accent); }
+
+/* expanded editor for the selected item */
+#editor { border-top: 1px solid var(--accent); border-bottom: 1px solid var(--border); padding: 8px 12px 10px; }
+#editor .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+.field { display: flex; flex-direction: column; gap: 3px; padding: 4px 0; }
+.field .in { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-hi); padding: 4px 8px; font-family: var(--font-num); font-size: 15px; background: rgba(0,0,0,0.25); }
+.field .in small { color: var(--muted); font-family: var(--font-ui); font-size: 11px; letter-spacing: 0.1em; }
+.field .in.sel { border-color: var(--accent); color: var(--accent); }
+.slider { position: relative; height: 2px; background: var(--border-hi); margin: 10px 2px 4px; }
+.slider i { position: absolute; top: -5px; width: 12px; height: 12px; background: var(--panel-solid); border: 1px solid var(--accent); transform: translateX(-50%) rotate(45deg); }
+.slider b { position: absolute; left: 0; top: 0; height: 2px; background: var(--accent); }
+.seg { display: flex; border: 1px solid var(--border-hi); }
+.seg div { flex: 1; text-align: center; padding: 4px 0; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--border-hi); }
+.seg div:last-child { border-right: 0; }
+.seg div.on { background: var(--accent); color: #0a0c0e; font-weight: 700; }
+#editor .estats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+#editor .estats div { border: 1px solid var(--border); padding: 5px 8px; }
+#editor .estats .v { font-family: var(--font-num); font-size: 16px; }
+#editor .estats .v small { font-size: 11px; color: var(--muted); font-family: var(--font-ui); }
+
+#actions { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); }
+#actions div { flex: 1; text-align: center; padding: 10px 0; border: 1px solid var(--border-hi); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); }
+#actions .primary { background: var(--accent); color: #0a0c0e; border-color: var(--accent); font-weight: 700; flex: 2; }
+#actions .primary small { display: block; font-size: 10px; letter-spacing: 0.1em; font-weight: 600; opacity: 0.8; }
+
+/* ---------- terrain profile ---------- */
+#terrain { bottom: 16px; left: 116px; right: 462px; height: 190px; }
+#terrain svg { position: absolute; left: 0; top: 30px; width: 100%; height: 160px; display: block; }
+#terrain .legend { position: absolute; right: 10px; top: 36px; display: flex; gap: 14px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+#terrain .legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 5px; }
+
+/* ---------- validation banner ---------- */
+#validate { position: absolute; left: 116px; top: 196px; display: flex; flex-direction: column; gap: 6px; }
+#validate .v { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--ok); padding: 5px 10px; font-size: 12px; }
+#validate .v.warn { border-left-color: var(--warn); }
+#validate .v .t { font-family: var(--font-num); color: var(--muted); }
+#validate .v .t b { color: var(--text); font-weight: 400; }
+</style>
+</head>
+<body>
+<canvas id="map" width="1920" height="1080"></canvas>
+
+<div id="toolbar">
+  <div class="logo"><div>Q</div></div>
+  <div class="mode">Plan</div>
+  <div class="fbtn"><svg class="ic" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg>Open</div>
+  <div class="fbtn"><svg class="ic" viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Save</div>
+  <div class="fbtn up"><svg class="ic" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/><path d="M4 21h16"/></svg>Upload</div>
+  <div class="fbtn"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/><path d="M4 21h16"/></svg>Download</div>
+  <div class="fbtn dim"><svg class="ic" viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>Clear</div>
+  <div class="fbtn dim"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+  <div class="tb-item"><span class="dot"></span><div class="stack"><span class="lbl">Target</span><span class="val">UAS-01</span></div></div>
+  <div class="tb-item"><span class="dot"></span><div class="stack"><span class="lbl">Plan sync</span><span class="val">MODIFIED</span></div></div>
+  <div class="tb-right">
+    <div class="chip">Mission <b>OP-BLUEFIN 14</b></div>
+    <div class="chip">Rev <b>07</b></div>
+    <div class="chip">Zulu <b>14:32:07Z</b></div>
+    <div class="chip"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
+  </div>
+</div>
+
+<div id="strip" class="panel">
+  <div class="btn view"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12l18-8-6 18-3-8z"/></svg>Fly</div>
+  <div class="btn"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6"/><path d="M4 21h16"/></svg>Takeoff</div>
+  <div class="btn on"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6-6-6-11a6 6 0 0 1 12 0c0 5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg>Waypoint</div>
+  <div class="btn"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>ROI</div>
+  <div class="btn"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><path d="M8 4v16M16 4v16"/></svg>Pattern</div>
+  <div class="btn"><svg class="ic" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/><path d="M12 20v-6"/></svg>Return</div>
+  <div class="btn"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><circle cx="12" cy="12" r="2"/></svg>Center</div>
+  <div class="btn"><svg class="ic" viewBox="0 0 24 24"><path d="M3 17l5-7 4 5 3-3 6 5z"/></svg>Terrain</div>
+</div>
+
+<div id="stats" class="panel">
+  <div class="cell"><div class="lbl">Distance</div><div class="val">4.2<small>km</small></div></div>
+  <div class="cell"><div class="lbl">Time</div><div class="val">12:40</div></div>
+  <div class="cell"><div class="lbl">Max telem</div><div class="val">1.3<small>km</small></div></div>
+  <div class="cell"><div class="lbl">Photos</div><div class="val">148</div></div>
+  <div class="cell"><div class="lbl">Batteries</div><div class="val">1</div></div>
+  <div class="cell"><div class="lbl">Min clearance</div><div class="val warn">42<small>m</small></div></div>
+  <div class="cell"><div class="lbl">Fence</div><div class="val acc">INSIDE</div></div>
+</div>
+
+<div id="scale">200 M<div class="bar"></div></div>
+<div id="mgrs">MGRS <b>32T NU 4912 2178</b></div>
+
+<div id="validate">
+  <div class="v"><span class="t">CHECK</span><span>Mission passes upload validation · 7 items</span></div>
+  <div class="v warn"><span class="t">WP <b>05</b></span><span>Terrain clearance 42 m below 50 m planning floor</span></div>
+</div>
+
+<div class="callout" style="left:660px;top:735px">LAUNCH <b>32T NU 4899 2201</b></div>
+<div class="callout sel" style="left:1070px;top:274px">WP 04 · SURVEY <b>60 m AGL · 148 img</b></div>
+<div class="callout" style="left:1080px;top:820px">WP 07 · RTL <b>412 m to home</b></div>
+
+<div id="right" class="panel">
+  <div id="tabs"><div class="on">Mission<span>7</span></div><div>Fence<span>1</span></div><div>Rally<span>2</span></div><div>Defaults</div></div>
+  <div id="planinfo"><span>Plan <b>OP-BLUEFIN 14 · rev 07</b></span><span>Default alt <b>60 m AGL</b></span></div>
+  <div class="items">
+    <div class="item"><div class="idx l"><span>L</span></div><div><div class="name">Launch</div><div class="sub">32T NU 4899 2201 · 0 m</div></div><div class="r"><b>—</b>start</div></div>
+    <div class="item"><div class="idx"><span>1</span></div><div><div class="name">Takeoff</div><div class="sub">climb to 60 m AGL</div></div><div class="r"><b>60 m</b>0:24</div></div>
+    <div class="item"><div class="idx"><span>2</span></div><div><div class="name">Waypoint</div><div class="sub">4903 2192 · hold 0 s</div></div><div class="r"><b>60 m</b>312 m</div></div>
+    <div class="item"><div class="idx"><span>3</span></div><div><div class="name">Waypoint</div><div class="sub">4910 2186 · camera trigger start</div></div><div class="r"><b>60 m</b>288 m</div></div>
+    <div class="item sel"><div class="idx sel"><span>4</span></div><div><div class="name">Survey · grid</div><div class="sub">9 transects · 148 images</div></div><div class="r"><b>60 m</b>2.1 km</div></div>
+  </div>
+  <div id="editor">
+    <div class="row">
+      <div class="field"><span class="lbl">Altitude</span><div class="in sel">60.0 <small>M AGL</small></div><div class="slider"><b style="width:38%"></b><i style="left:38%"></i></div></div>
+      <div class="field"><span class="lbl">Grid angle</span><div class="in">084 <small>DEG</small></div><div class="slider"><b style="width:23%"></b><i style="left:23%"></i></div></div>
+      <div class="field"><span class="lbl">Spacing</span><div class="in">28.5 <small>M</small></div></div>
+      <div class="field"><span class="lbl">Trigger dist</span><div class="in">19.0 <small>M</small></div></div>
+    </div>
+    <div class="field"><span class="lbl">Altitude reference</span><div class="seg"><div>AMSL</div><div class="on">AGL</div><div>Terrain follow</div></div></div>
+    <div class="field"><span class="lbl">Camera</span><div class="in">EO/IR 20 MP · 70 % / 60 % overlap <small>EDIT</small></div></div>
+    <div class="estats">
+      <div><div class="lbl">Photos</div><div class="v">148</div></div>
+      <div><div class="lbl">GSD</div><div class="v">1.6<small> cm</small></div></div>
+      <div><div class="lbl">Area</div><div class="v">0.21<small> km²</small></div></div>
+      <div><div class="lbl">Time</div><div class="v">06:12</div></div>
+    </div>
+  </div>
+  <div class="items">
+    <div class="item"><div class="idx"><span>5</span></div><div><div class="name">Waypoint</div><div class="sub">4922 2179 · camera trigger stop</div></div><div class="r"><b>60 m</b>264 m</div></div>
+    <div class="item"><div class="idx"><span>6</span></div><div><div class="name">Waypoint</div><div class="sub">4918 2168 · loiter 10 s</div></div><div class="r"><b>60 m</b>246 m</div></div>
+    <div class="item"><div class="idx rtl"><span>7</span></div><div><div class="name">Return to launch</div><div class="sub">RTL alt 80 m · land</div></div><div class="r"><b>80 m</b>412 m</div></div>
+  </div>
+  <div id="spacer"></div>
+  <div id="actions"><div>Save</div><div class="primary">Upload to UAS-01<small>7 items · rev 07</small></div><div>Verify</div></div>
+</div>
+
+<div id="terrain" class="panel">
+  <div class="ptitle"><b>TERRAIN PROFILE</b><span class="num">0 – 4.2 km · AMSL</span></div>
+  <div class="legend"><span><i style="background:var(--ok)"></i>Mission</span><span><i style="background:var(--muted)"></i>Terrain</span><span><i style="background:var(--warn)"></i>Below floor</span></div>
+  <svg id="profile" viewBox="0 0 1300 160" preserveAspectRatio="none"></svg>
+</div>
+
+<script src="map.js"></script>
+<script>
+const cs = getComputedStyle(document.documentElement);
+const v = n => cs.getPropertyValue(n).trim();
+drawTacticalMap(document.getElementById('map'), {
+  bg: v('--map-bg'), terrainHi: v('--map-hi'), contour: v('--map-contour'), water: v('--map-water'),
+  road: v('--map-road'), building: v('--map-building'), grid: v('--map-grid'), gridText: v('--map-gridtext'),
+  fence: v('--crit'), mission: v('--ok'), missionActive: v('--accent'), survey: v('--ok'),
+  home: v('--text'), trail: v('--accent'), ring: v('--map-gridtext'), vehicle: v('--accent'),
+  friend: v('--ok'), unknown: v('--warn'), font: 'Share Tech Mono',
+}, { seed: 11, vehicle: null, handles: true, selectedWp: 3, currentWp: 3 });
+
+// terrain profile
+(function () {
+  const svg = document.getElementById('profile');
+  const W = 1300, H = 160, top = 14, bottom = 140;
+  let terrain = '', pts = [];
+  for (let x = 0; x <= W; x += 10) {
+    const t = x / W;
+    const h = 40 + 30 * Math.sin(t * 6.1) + 18 * Math.sin(t * 15 + 1.2) + 10 * Math.sin(t * 31);
+    pts.push([x, h]);
+  }
+  const y = h => bottom - (h / 140) * (bottom - top);
+  terrain = 'M0 ' + bottom + ' ' + pts.map(p => `L${p[0]} ${y(p[1])}`).join(' ') + ` L${W} ${bottom} Z`;
+  // mission: takeoff to 60 AGL over terrain, then flat AGL following => AMSL = terrain+60, RTL 80
+  const mission = pts.map((p, i) => {
+    const t = p[0] / W;
+    const agl = t < 0.04 ? 60 * (t / 0.04) : (t > 0.9 ? 80 : 60);
+    return [p[0], y(p[1] + agl - (t > 0.55 && t < 0.62 ? 18 : 0))];
+  });
+  const mpath = 'M' + mission.map(p => `${p[0]} ${p[1]}`).join(' L');
+  const floor = pts.map(p => `${p[0]} ${y(p[1] + 50)}`).join(' L');
+  const dip = mission.filter(p => p[0] / W > 0.55 && p[0] / W < 0.62);
+  const dpath = 'M' + dip.map(p => `${p[0]} ${p[1]}`).join(' L');
+  const wpx = [0.06, 0.16, 0.24, 0.3, 0.72, 0.8, 0.9];
+  svg.innerHTML = `
+    <g stroke="${v('--border')}"><line x1="0" y1="${y(0)}" x2="${W}" y2="${y(0)}"/><line x1="0" y1="${y(50)}" x2="${W}" y2="${y(50)}"/><line x1="0" y1="${y(100)}" x2="${W}" y2="${y(100)}"/></g>
+    <path d="${terrain}" fill="rgba(125,134,142,0.18)" stroke="${v('--muted')}" stroke-width="1"/>
+    <path d="M${floor}" fill="none" stroke="${v('--border-hi')}" stroke-dasharray="4 4"/>
+    <path d="${mpath}" fill="none" stroke="${v('--ok')}" stroke-width="2"/>
+    <path d="${dpath}" fill="none" stroke="${v('--warn')}" stroke-width="3"/>
+    ${wpx.map((t, i) => { const p = mission[Math.round(t * pts.length - 1)]; return `<g transform="translate(${p[0]},${p[1]}) rotate(45)"><rect x="-5" y="-5" width="10" height="10" fill="${i === 3 ? v('--accent') : v('--ok')}" stroke="${v('--map-bg')}"/></g><text x="${p[0]}" y="${p[1] - 12}" fill="${v('--text')}" font-family="Share Tech Mono" font-size="11" text-anchor="middle">${i + 1}</text>`; }).join('')}
+    <g fill="${v('--muted')}" font-family="Share Tech Mono" font-size="11"><text x="6" y="${y(100) - 3}">100 m</text><text x="6" y="${y(50) - 3}">50 m</text><text x="6" y="${y(0) - 3}">0 m</text></g>
+    <g fill="${v('--muted')}" font-family="Share Tech Mono" font-size="11" text-anchor="middle">${[1, 2, 3, 4].map(k => `<text x="${k * W / 4.2}" y="${H - 2}">${k} km</text>`).join('')}</g>
+    <g transform="translate(${W * 0.585},${y(pts[Math.round(0.585 * pts.length)][1] + 42)})"><text x="0" y="-16" fill="${v('--warn')}" font-family="Share Tech Mono" font-size="11" text-anchor="middle">42 m</text></g>
+  `;
+})();
+</script>
+</body>
+</html>
