@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>QGC skin mockup: Neon Command, Plan View</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root {
+  --bg: #03070d;
+  --panel: rgba(5, 14, 26, 0.82);
+  --panel-solid: #071324;
+  --border: rgba(31, 209, 249, 0.35);
+  --border-hi: rgba(31, 209, 249, 0.8);
+  --text: #d6eef8;
+  --muted: #5f8fa8;
+  --accent: #1fd1f9;
+  --accent2: #ff3ea5;
+  --ok: #35f0a8;
+  --warn: #ffb020;
+  --crit: #ff3b5c;
+  --glow: 0 0 10px rgba(31, 209, 249, 0.55), 0 0 22px rgba(31, 209, 249, 0.25);
+  --map-bg: #040b16;
+  --map-hi: rgba(20, 60, 90, 0.35);
+  --map-contour: rgba(31, 140, 190, 0.18);
+  --map-water: rgba(12, 60, 100, 0.85);
+  --map-road: rgba(60, 120, 160, 0.45);
+  --map-building: rgba(40, 90, 130, 0.45);
+  --map-grid: rgba(31, 209, 249, 0.07);
+  --map-gridtext: rgba(31, 209, 249, 0.4);
+  --font-ui: 'Rajdhani', 'Liberation Sans', sans-serif;
+  --font-head: 'Orbitron', 'Liberation Sans', sans-serif;
+  --font-num: 'Share Tech Mono', 'DejaVu Sans Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-ui); font-size: 16px; }
+#map { position: absolute; inset: 0; }
+#hex { position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'><path d='M28 0 L56 16 L56 48 L28 64 L0 48 L0 16 Z M28 64 L56 80 L56 112 M28 64 L0 80 L0 112' fill='none' stroke='rgba(31,209,249,0.08)' stroke-width='1'/></svg>"); }
+#scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.12) 0 1px, transparent 1px 4px); mix-blend-mode: multiply; }
+#vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%); }
+.head { font-family: var(--font-head); text-transform: uppercase; letter-spacing: 0.18em; font-size: 12px; color: var(--accent); }
+.lbl { font-size: 10px; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; line-height: 1; }
+.panel { position: absolute; background: var(--panel); border: 1px solid var(--border); box-shadow: inset 0 0 30px rgba(31,209,249,0.05), 0 0 18px rgba(0,0,0,0.5); }
+.cham { clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+.brk { position: absolute; width: 14px; height: 14px; border: 2px solid var(--accent); box-shadow: var(--glow); }
+.brk.tl { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.brk.tr { top: -1px; right: -1px; border-left: 0; border-bottom: 0; }
+.brk.bl { bottom: -1px; left: -1px; border-right: 0; border-top: 0; }
+.brk.br { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+.ptitle { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--border); background: linear-gradient(90deg, rgba(31,209,249,0.14), transparent 70%); }
+.ptitle span:last-child { font-family: var(--font-num); font-size: 12px; color: var(--muted); }
+svg.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- toolbar ---------- */
+#toolbar { position: absolute; top: 0; left: 0; right: 0; height: 64px; background: linear-gradient(180deg, rgba(5,14,26,0.95), rgba(5,14,26,0.75)); border-bottom: 1px solid var(--border); display: flex; align-items: center; z-index: 2; }
+#toolbar::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent) 70%, transparent); box-shadow: var(--glow); }
+#toolbar .logo { width: 72px; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border); }
+#toolbar .logo div { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), #0b6b8f); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 700; color: #03070d; font-size: 18px; box-shadow: var(--glow); }
+.mode { margin-left: 16px; padding: 8px 26px; font-family: var(--font-head); font-size: 15px; letter-spacing: 0.22em; text-transform: uppercase; color: #03070d; background: var(--accent); clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); box-shadow: var(--glow); }
+.fbtn { display: flex; align-items: center; gap: 8px; padding: 0 18px; height: 100%; border-right: 1px solid var(--border); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); }
+.fbtn:first-of-type { border-left: 1px solid var(--border); margin-left: 18px; }
+.fbtn svg { color: var(--accent); filter: drop-shadow(0 0 4px var(--accent)); }
+.fbtn.dim { color: var(--muted); }
+.fbtn.dim svg { color: var(--muted); filter: none; }
+.fbtn.up { background: rgba(31,209,249,0.14); color: var(--accent); text-shadow: var(--glow); }
+.gauge { display: flex; align-items: center; gap: 10px; padding: 0 16px; height: 100%; border-right: 1px solid var(--border); }
+.gauge .txt { display: flex; flex-direction: column; }
+.gauge .v { font-family: var(--font-num); font-size: 19px; line-height: 1.1; color: var(--text); }
+.gauge .v.warn { color: var(--warn); }
+.tb-right { margin-left: auto; display: flex; height: 100%; }
+.chip { display: flex; align-items: center; gap: 10px; padding: 0 18px; border-left: 1px solid var(--border); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.chip b { color: var(--accent); font-family: var(--font-num); font-size: 17px; letter-spacing: 0; font-weight: 400; text-shadow: var(--glow); }
+.pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.pulse.warn { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+
+/* ---------- left strip ---------- */
+#strip { position: absolute; top: 84px; left: 18px; display: flex; flex-direction: column; gap: 10px; }
+#strip .hexb { width: 78px; height: 88px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: rgba(5,14,26,0.85); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+#strip .hexb::before { content: ''; position: absolute; inset: 2px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--border); z-index: -1; }
+#strip .hexb svg { width: 26px; height: 26px; color: var(--accent); filter: drop-shadow(0 0 4px var(--accent)); }
+#strip .hexb.on { color: var(--accent); background: rgba(31,209,249,0.22); }
+#strip .hexb.view { color: var(--text); }
+
+/* ---------- stats ---------- */
+#stats { position: absolute; top: 84px; left: 118px; display: flex; gap: 6px; }
+#stats .cell { min-width: 112px; padding: 7px 12px 5px; background: var(--panel); border: 1px solid var(--border); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+#stats .val { font-family: var(--font-num); font-size: 22px; line-height: 1.15; color: var(--accent); text-shadow: var(--glow); }
+#stats .val small { font-size: 11px; color: var(--muted); margin-left: 3px; font-family: var(--font-ui); text-shadow: none; }
+#stats .val.warn { color: var(--warn); text-shadow: 0 0 10px rgba(255,176,32,0.6); }
+#stats .val.ok { color: var(--ok); text-shadow: 0 0 10px rgba(53,240,168,0.6); }
+
+#scale { position: absolute; left: 118px; top: 142px; font-size: 11px; letter-spacing: 0.16em; color: var(--muted); }
+#scale .bar { width: 120px; height: 6px; border: 1px solid var(--accent); border-top: 0; margin-top: 4px; box-shadow: var(--glow); }
+#coord { position: absolute; left: 118px; top: 178px; font-family: var(--font-num); font-size: 12px; color: var(--muted); }
+#coord b { color: var(--accent); font-weight: 400; }
+
+#validate { position: absolute; left: 118px; top: 206px; display: flex; flex-direction: column; gap: 6px; }
+#validate .v { display: flex; gap: 12px; align-items: center; padding: 7px 14px; font-size: 13px; background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--ok); clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%); }
+#validate .v.warn { border-left-color: var(--warn); }
+#validate .t { font-family: var(--font-num); color: var(--muted); }
+#validate .t b { color: var(--text); font-weight: 400; }
+
+.callout { position: absolute; background: var(--panel); border: 1px solid var(--border); padding: 4px 10px; font-family: var(--font-num); font-size: 11px; color: var(--muted); white-space: nowrap; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%); }
+.callout b { color: var(--accent); font-weight: 400; }
+.callout.sel { border-color: var(--accent); box-shadow: var(--glow); }
+.callout.sel b { color: var(--ok); }
+
+/* ---------- right panel ---------- */
+#right { top: 84px; right: 18px; bottom: 28px; width: 440px; display: flex; flex-direction: column; }
+#tabs { display: flex; border-bottom: 1px solid var(--border); }
+#tabs div { flex: 1; text-align: center; padding: 10px 0; font-family: var(--font-head); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--border); }
+#tabs div:last-child { border-right: 0; }
+#tabs div.on { color: var(--accent); background: rgba(31,209,249,0.14); box-shadow: inset 0 -2px 0 var(--accent); text-shadow: var(--glow); }
+#tabs div span { font-family: var(--font-num); letter-spacing: 0; margin-left: 6px; }
+#planinfo { display: flex; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+#planinfo b { color: var(--text); font-family: var(--font-num); font-weight: 400; letter-spacing: 0; font-size: 13px; }
+.item { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid rgba(31,209,249,0.08); font-size: 14px; }
+.item .idx { width: 24px; height: 24px; transform: rotate(45deg); background: var(--panel-solid); border: 1px solid var(--accent); color: var(--accent); font-family: var(--font-num); font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.item .idx span { transform: rotate(-45deg); }
+.item .idx.l { border-color: var(--warn); color: var(--warn); }
+.item .idx.sel { background: var(--accent); color: #03070d; box-shadow: var(--glow); }
+.item .idx.rtl { border-color: var(--muted); color: var(--muted); }
+.item .name { font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 13px; }
+.item .sub { font-size: 11px; color: var(--muted); font-family: var(--font-num); }
+.item .r { text-align: right; font-family: var(--font-num); font-size: 12px; color: var(--muted); }
+.item .r b { color: var(--accent); font-weight: 400; display: block; font-size: 13px; }
+.item.sel { background: linear-gradient(90deg, rgba(31,209,249,0.18), transparent); border-left: 3px solid var(--accent); }
+#spacer { flex: 1; }
+
+#editor { border-top: 1px solid var(--accent); border-bottom: 1px solid var(--border); padding: 10px 14px 12px; background: rgba(31,209,249,0.04); }
+#editor .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+.field { display: flex; flex-direction: column; gap: 4px; padding: 3px 0; }
+.field .in { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); padding: 5px 10px; font-family: var(--font-num); font-size: 15px; background: rgba(0,0,0,0.3); clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.field .in small { color: var(--muted); font-family: var(--font-ui); font-size: 11px; letter-spacing: 0.1em; }
+.field .in.sel { border-color: var(--accent); color: var(--accent); text-shadow: var(--glow); }
+.slider { position: relative; height: 2px; background: rgba(31,209,249,0.2); margin: 10px 2px 4px; }
+.slider i { position: absolute; top: -5px; width: 12px; height: 12px; background: var(--panel-solid); border: 1px solid var(--accent); transform: translateX(-50%) rotate(45deg); box-shadow: var(--glow); }
+.slider b { position: absolute; left: 0; top: 0; height: 2px; background: var(--accent); box-shadow: var(--glow); }
+.seg { display: flex; border: 1px solid var(--border); }
+.seg div { flex: 1; text-align: center; padding: 5px 0; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--border); }
+.seg div:last-child { border-right: 0; }
+.seg div.on { background: var(--accent); color: #03070d; font-weight: 700; box-shadow: var(--glow); }
+#editor .estats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+#editor .estats div { border: 1px solid var(--border); padding: 5px 8px; clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px); }
+#editor .estats .v { font-family: var(--font-num); font-size: 16px; color: var(--accent); }
+#editor .estats .v small { font-size: 11px; color: var(--muted); font-family: var(--font-ui); }
+
+#actions { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); }
+#actions div { flex: 1; text-align: center; padding: 11px 0; border: 1px solid var(--border-hi); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text); clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+#actions .primary { background: var(--accent); color: #03070d; border-color: var(--accent); font-family: var(--font-head); font-weight: 700; flex: 2; box-shadow: var(--glow); }
+#actions .primary small { display: block; font-family: var(--font-ui); font-size: 10px; letter-spacing: 0.1em; font-weight: 600; opacity: 0.8; }
+
+/* ---------- terrain ---------- */
+#terrain { bottom: 28px; left: 118px; right: 476px; height: 190px; }
+#terrain svg { position: absolute; left: 0; top: 34px; width: 100%; height: 156px; display: block; }
+#terrain .legend { position: absolute; right: 12px; top: 40px; display: flex; gap: 14px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+#terrain .legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 5px; }
+</style>
+</head>
+<body>
+<canvas id="map" width="1920" height="1080"></canvas>
+<div id="hex"></div>
+<div id="vig"></div>
+
+<div id="toolbar">
+  <div class="logo"><div>Q</div></div>
+  <div class="mode">Plan</div>
+  <div class="fbtn"><svg class="ic" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg>Open</div>
+  <div class="fbtn"><svg class="ic" viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Save</div>
+  <div class="fbtn up"><svg class="ic" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/><path d="M4 21h16"/></svg>Upload</div>
+  <div class="fbtn"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/><path d="M4 21h16"/></svg>Download</div>
+  <div class="fbtn dim"><svg class="ic" viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>Clear</div>
+  <div class="gauge"><span class="pulse"></span><div class="txt"><span class="lbl">Target</span><span class="v">UAS-01</span></div></div>
+  <div class="gauge"><span class="pulse warn"></span><div class="txt"><span class="lbl">Plan sync</span><span class="v warn">MODIFIED</span></div></div>
+  <div class="tb-right">
+    <div class="chip">Op <b>BLUEFIN-14</b></div>
+    <div class="chip">Rev <b>07</b></div>
+    <div class="chip">Zulu <b>14:32:07</b></div>
+    <div class="chip"><svg class="ic" viewBox="0 0 24 24" style="color:var(--accent)"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
+  </div>
+</div>
+
+<div id="strip">
+  <div class="hexb view"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12l18-8-6 18-3-8z"/></svg>Fly</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6"/><path d="M4 21h16"/></svg>Takeoff</div>
+  <div class="hexb on"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6-6-6-11a6 6 0 0 1 12 0c0 5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg>Waypoint</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>ROI</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><path d="M8 4v16M16 4v16"/></svg>Pattern</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/><path d="M12 20v-6"/></svg>Return</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><circle cx="12" cy="12" r="2"/></svg>Center</div>
+  <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M3 17l5-7 4 5 3-3 6 5z"/></svg>Terrain</div>
+</div>
+
+<div id="stats">
+  <div class="cell"><div class="lbl">Distance</div><div class="val">4.2<small>km</small></div></div>
+  <div class="cell"><div class="lbl">Time</div><div class="val">12:40</div></div>
+  <div class="cell"><div class="lbl">Max telem</div><div class="val">1.3<small>km</small></div></div>
+  <div class="cell"><div class="lbl">Photos</div><div class="val">148</div></div>
+  <div class="cell"><div class="lbl">Batteries</div><div class="val">1</div></div>
+  <div class="cell"><div class="lbl">Min clearance</div><div class="val warn">42<small>m</small></div></div>
+  <div class="cell"><div class="lbl">Fence</div><div class="val ok">INSIDE</div></div>
+</div>
+
+<div id="scale">200 M<div class="bar"></div></div>
+<div id="coord">MGRS <b>32T NU 4912 2178</b> · 47.3969N 8.5486E</div>
+
+<div id="validate">
+  <div class="v"><span class="t">CHECK</span><span>Mission passes upload validation · 7 items</span></div>
+  <div class="v warn"><span class="t">WP <b>05</b></span><span>Terrain clearance 42 m below 50 m planning floor</span></div>
+</div>
+
+<div class="callout" style="left:672px;top:735px">LAUNCH · <b>32T NU 4899 2201</b></div>
+<div class="callout sel" style="left:1070px;top:274px">WP 04 · SURVEY · <b>60 m AGL · 148 img</b></div>
+<div class="callout" style="left:1080px;top:820px">WP 07 · RTL · <b>412 m to home</b></div>
+
+<div id="right" class="panel">
+  <span class="brk tl"></span><span class="brk br"></span>
+  <div id="tabs"><div class="on">Mission<span>7</span></div><div>Fence<span>1</span></div><div>Rally<span>2</span></div><div>Defaults</div></div>
+  <div id="planinfo"><span>Plan <b>BLUEFIN-14 · rev 07</b></span><span>Default alt <b>60 m AGL</b></span></div>
+  <div class="items">
+    <div class="item"><div class="idx l"><span>L</span></div><div><div class="name">Launch</div><div class="sub">32T NU 4899 2201 · 0 m</div></div><div class="r"><b>—</b>start</div></div>
+    <div class="item"><div class="idx"><span>1</span></div><div><div class="name">Takeoff</div><div class="sub">climb to 60 m AGL</div></div><div class="r"><b>60 m</b>0:24</div></div>
+    <div class="item"><div class="idx"><span>2</span></div><div><div class="name">Waypoint</div><div class="sub">4903 2192 · hold 0 s</div></div><div class="r"><b>60 m</b>312 m</div></div>
+    <div class="item"><div class="idx"><span>3</span></div><div><div class="name">Waypoint</div><div class="sub">4910 2186 · camera trigger start</div></div><div class="r"><b>60 m</b>288 m</div></div>
+    <div class="item sel"><div class="idx sel"><span>4</span></div><div><div class="name">Survey · grid</div><div class="sub">9 transects · 148 images</div></div><div class="r"><b>60 m</b>2.1 km</div></div>
+  </div>
+  <div id="editor">
+    <div class="row">
+      <div class="field"><span class="lbl">Altitude</span><div class="in sel">60.0 <small>M AGL</small></div><div class="slider"><b style="width:38%"></b><i style="left:38%"></i></div></div>
+      <div class="field"><span class="lbl">Grid angle</span><div class="in">084 <small>DEG</small></div><div class="slider"><b style="width:23%"></b><i style="left:23%"></i></div></div>
+      <div class="field"><span class="lbl">Spacing</span><div class="in">28.5 <small>M</small></div></div>
+      <div class="field"><span class="lbl">Trigger dist</span><div class="in">19.0 <small>M</small></div></div>
+    </div>
+    <div class="field"><span class="lbl">Altitude reference</span><div class="seg"><div>AMSL</div><div class="on">AGL</div><div>Terrain follow</div></div></div>
+    <div class="field"><span class="lbl">Camera</span><div class="in">EO/IR 20 MP · 70 % / 60 % overlap <small>EDIT</small></div></div>
+    <div class="estats">
+      <div><div class="lbl">Photos</div><div class="v">148</div></div>
+      <div><div class="lbl">GSD</div><div class="v">1.6<small> cm</small></div></div>
+      <div><div class="lbl">Area</div><div class="v">0.21<small> km²</small></div></div>
+      <div><div class="lbl">Time</div><div class="v">06:12</div></div>
+    </div>
+  </div>
+  <div class="items">
+    <div class="item"><div class="idx"><span>5</span></div><div><div class="name">Waypoint</div><div class="sub">4922 2179 · camera trigger stop</div></div><div class="r"><b>60 m</b>264 m</div></div>
+    <div class="item"><div class="idx"><span>6</span></div><div><div class="name">Waypoint</div><div class="sub">4918 2168 · loiter 10 s</div></div><div class="r"><b>60 m</b>246 m</div></div>
+    <div class="item"><div class="idx rtl"><span>7</span></div><div><div class="name">Return to launch</div><div class="sub">RTL alt 80 m · land</div></div><div class="r"><b>80 m</b>412 m</div></div>
+  </div>
+  <div id="spacer"></div>
+  <div id="actions"><div>Save</div><div class="primary">Upload to UAS-01<small>7 items · rev 07</small></div><div>Verify</div></div>
+</div>
+
+<div id="terrain" class="panel cham">
+  <div class="ptitle"><span class="head">Terrain profile</span><span>0 – 4.2 km · AMSL</span></div>
+  <div class="legend"><span><i style="background:var(--accent)"></i>Mission</span><span><i style="background:var(--muted)"></i>Terrain</span><span><i style="background:var(--warn)"></i>Below floor</span></div>
+  <svg id="profile" viewBox="0 0 1300 156" preserveAspectRatio="none"></svg>
+</div>
+
+<div id="scan"></div>
+
+<script src="map.js"></script>
+<script src="profile.js"></script>
+<script>
+const cs = getComputedStyle(document.documentElement);
+const v = n => cs.getPropertyValue(n).trim();
+drawTacticalMap(document.getElementById('map'), {
+  bg: v('--map-bg'), terrainHi: v('--map-hi'), contour: v('--map-contour'), water: v('--map-water'),
+  road: v('--map-road'), building: v('--map-building'), grid: v('--map-grid'), gridText: v('--map-gridtext'),
+  fence: v('--accent2'), mission: v('--accent'), missionActive: v('--ok'), survey: v('--accent'),
+  home: v('--warn'), trail: v('--accent'), ring: 'rgba(31,209,249,0.25)', vehicle: v('--accent'),
+  friend: v('--ok'), unknown: v('--warn'), font: 'Share Tech Mono',
+}, { seed: 11, vehicle: null, handles: true, selectedWp: 3, currentWp: 3 });
+drawTerrainProfile(document.getElementById('profile'), {
+  grid: v('--border'), label: v('--muted'), terrainFill: 'rgba(31,140,190,0.15)', terrain: v('--muted'),
+  floor: v('--border-hi'), mission: v('--accent'), missionGlow: 'rgba(31,209,249,0.35)', warn: v('--warn'),
+  wp: v('--accent'), wpSel: v('--ok'), wpText: v('--text'), bg: v('--map-bg'), font: 'Share Tech Mono',
+}, { selected: 3 });
+</script>
+</body>
+</html>

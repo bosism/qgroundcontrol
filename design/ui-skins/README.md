@@ -22,6 +22,8 @@ The plain upstream Fly View and Plan View screenshots ship with the docs:
 | `screenshots/stealth-ops-nvg.jpg` | **A2. Stealth Ops, NVG variant** – same layout, monochrome phosphor-green palette for night/low-light use. Only CSS variables change. | `mockups/stealth-nvg.html` |
 | `screenshots/stealth-ops-plan.jpg` | **A3. Stealth Ops, Plan View** – same skin applied to mission planning. Plan statistics strip (distance, time, max telemetry range, photos, batteries, minimum terrain clearance, fence check), validation callouts, mission item list with the selected survey item expanded inline (altitude, grid angle, spacing, trigger distance, altitude reference, camera, per-item stats), segment edit handles and callouts on the map, terrain profile with a 50 m planning floor and the offending leg highlighted, and a primary "upload to vehicle" action. | `mockups/stealth-plan.html` |
 | `screenshots/neon-command.jpg` | **B. Neon Command** – sci-fi cyan/magenta on deep navy. Hexagonal tool-strip buttons, chamfered panels with corner brackets, ring gauges in the toolbar, glowing bar gauges, radar-style compass with attitude ball and sweep, hex-grid and scan-line overlays. | `mockups/neon.html` |
+| `screenshots/neon-command-plan.jpg` | **B2. Neon Command, Plan View** – the planning screen in the Neon skin: chamfered stat cells with glowing digits, skewed validation chips, outlined diamond item badges, inline survey editor, glowing mission line on the terrain profile. | `mockups/neon-plan.html` |
+| `screenshots/neon-command-plan-tablet.jpg` | **B3. Neon Command, Plan View on an 8-inch Android tablet** – 1280×800 layout inside a device frame with the Android status bar and gesture pill. Icon-only 48 px file actions, 62 px hex tool buttons, map zoom/locate buttons, item list collapsed to the selected item with the rest folded into one line, stepper (+/−) inputs, a 330 px drawer with a collapse handle, and the terrain profile reduced to a strip with a toggle. Rendered at 1.5× device pixel ratio. | `mockups/neon-plan-tablet.html` |
 
 Both concepts keep the stock Fly View arrangement so the mapping to QGC is
 direct: toolbar on top, tool strip left, camera/instrument column right,
@@ -35,14 +37,20 @@ cd design/ui-skins/mockups
 node shoot.js stealth.html:../screenshots/stealth-ops.jpg \
               stealth-nvg.html:../screenshots/stealth-ops-nvg.jpg \
               stealth-plan.html:../screenshots/stealth-ops-plan.jpg \
-              neon.html:../screenshots/neon-command.jpg
+              neon.html:../screenshots/neon-command.jpg \
+              neon-plan.html:../screenshots/neon-command-plan.jpg \
+              neon-plan-tablet.html:../screenshots/neon-command-plan-tablet.jpg:1360:900:1.5
 ```
+
+Each argument is `page:output[:width:height[:scale]]`; width and height default
+to 1920×1080 and scale to 1.
 
 `shoot.js` needs the `playwright` npm package and a Chromium it can launch.
 `fonts.css` pulls Barlow Condensed, Rajdhani, Orbitron and Share Tech Mono from
 Google Fonts; offline the pages fall back to Liberation Sans and DejaVu Sans
 Mono. `map.js` draws a procedural dark map (contours, grid, fence, mission,
-tracks) so no tiles or network are needed.
+tracks) and `profile.js` the terrain profile strip, so no tiles or network are
+needed.
 
 ## How this maps onto QGC
 
@@ -110,6 +118,7 @@ Stock file to replace or wrap, and what the mockup puts there:
 | Mission item list and inline editor | `src/PlanView/PlanViewRightPanel.qml`, `PlanTreeView.qml`, `MissionItemEditor.qml`, `SimpleItemEditor.qml`, `SurveyItemEditor.qml`, `TransectStyleComplexItemStats.qml` | Diamond index badges, mono sub-lines, selected item expands into a two-column field grid with segmented altitude-reference control. |
 | Validation callouts | `src/PlanView/MissionItemStatus.qml`, `PlanView.qml` | Severity-coded lines top-left of the map, mirrors the Fly View message panel. |
 | Terrain profile | `src/PlanView/TerrainStatus.qml` | Mission line over terrain fill, dashed planning floor, legs below the floor drawn in the warning colour. |
+| Tablet layout (B3) | `ScreenTools` (`isTabletScreen`, `defaultFontPixelHeight`), `PlanViewRightPanel.qml` width, `PlanView.qml` tool strip | QGC already switches sizes through `ScreenTools`; the mockup assumes the right panel becomes a slide-in drawer and the item list collapses around the selected item on small screens. |
 | Scan-line / hex overlay (B) | `src/FlyView/FlyViewCustomLayer.qml` | Full-screen `Rectangle` with `ShaderEffect` or tiled image, `enabled: false` by default for readability. |
 
 Rules from `AGENTS.md` still apply: sizes from `ScreenTools`, colours from
@@ -142,7 +151,8 @@ New widgets:
 
 Other views in the same skin:
 
-- "Mock up the Plan View in the Neon Command skin: survey polygon editor, waypoint list, terrain profile strip."
+- "Mock up the Fly View on the 8-inch tablet in both skins, with the virtual joystick enabled."
+- "Mock up a phone-sized portrait layout of the Neon Fly View with a bottom sheet for the instrument panel."
 - "Mock up the Plan View fence and rally tabs in the Stealth skin, with a polygon vertex editor and rally point list."
 - "Mock up the Vehicle Setup and Application Settings pages in the Stealth skin."
 - "Mock up the toolbar indicator pop-ups (GPS, battery, RC) as chamfered dropdowns."

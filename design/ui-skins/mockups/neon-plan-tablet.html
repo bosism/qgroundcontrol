@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>QGC skin mockup: Neon Command, Plan View on an 8-inch Android tablet</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root {
+  --bg: #03070d;
+  --panel: rgba(5, 14, 26, 0.86);
+  --panel-solid: #071324;
+  --border: rgba(31, 209, 249, 0.35);
+  --border-hi: rgba(31, 209, 249, 0.8);
+  --text: #d6eef8;
+  --muted: #5f8fa8;
+  --accent: #1fd1f9;
+  --accent2: #ff3ea5;
+  --ok: #35f0a8;
+  --warn: #ffb020;
+  --crit: #ff3b5c;
+  --glow: 0 0 8px rgba(31, 209, 249, 0.55), 0 0 18px rgba(31, 209, 249, 0.25);
+  --map-bg: #040b16;
+  --map-hi: rgba(20, 60, 90, 0.35);
+  --map-contour: rgba(31, 140, 190, 0.18);
+  --map-water: rgba(12, 60, 100, 0.85);
+  --map-road: rgba(60, 120, 160, 0.45);
+  --map-building: rgba(40, 90, 130, 0.45);
+  --map-grid: rgba(31, 209, 249, 0.07);
+  --map-gridtext: rgba(31, 209, 249, 0.4);
+  --font-ui: 'Rajdhani', 'Liberation Sans', sans-serif;
+  --font-head: 'Orbitron', 'Liberation Sans', sans-serif;
+  --font-num: 'Share Tech Mono', 'DejaVu Sans Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1360px; height: 900px; overflow: hidden; background: #101418; color: var(--text); font-family: var(--font-ui); font-size: 14px; }
+
+/* ---------- device frame ---------- */
+#device { position: absolute; left: 40px; top: 32px; width: 1280px; height: 836px; }
+#bezel { position: absolute; inset: -22px; border-radius: 26px; background: #0b0d10; box-shadow: 0 0 0 2px #23282e, 0 30px 60px rgba(0,0,0,0.6); }
+#bezel::before { content: ''; position: absolute; left: 50%; top: 8px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: #1a2026; box-shadow: inset 0 0 2px #000; }
+#screen { position: absolute; inset: 0; overflow: hidden; border-radius: 6px; background: var(--bg); }
+
+/* ---------- android status bar ---------- */
+#status { position: absolute; top: 0; left: 0; right: 0; height: 24px; background: #000; display: flex; align-items: center; padding: 0 12px; font-size: 12px; color: #cfd8dc; z-index: 5; font-family: 'Liberation Sans', sans-serif; }
+#status .r { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+#status svg { width: 14px; height: 14px; fill: #cfd8dc; }
+#navpill { position: absolute; left: 50%; bottom: 8px; width: 120px; height: 4px; margin-left: -60px; border-radius: 2px; background: rgba(255,255,255,0.55); z-index: 5; }
+
+/* ---------- app area ---------- */
+#app { position: absolute; top: 24px; left: 0; right: 0; bottom: 0; overflow: hidden; }
+#map { position: absolute; inset: 0; }
+#hex { position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='42' height='73' viewBox='0 0 56 97'><path d='M28 0 L56 16 L56 48 L28 64 L0 48 L0 16 Z M28 64 L56 80 L56 112 M28 64 L0 80 L0 112' fill='none' stroke='rgba(31,209,249,0.08)' stroke-width='1'/></svg>"); }
+#vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.5) 100%); }
+.head { font-family: var(--font-head); text-transform: uppercase; letter-spacing: 0.16em; font-size: 10px; color: var(--accent); }
+.lbl { font-size: 9px; color: var(--muted); letter-spacing: 0.16em; text-transform: uppercase; line-height: 1; }
+.panel { position: absolute; background: var(--panel); border: 1px solid var(--border); box-shadow: 0 0 14px rgba(0,0,0,0.5); }
+.brk { position: absolute; width: 10px; height: 10px; border: 2px solid var(--accent); box-shadow: var(--glow); }
+.brk.tl { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.brk.br { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+svg.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+/* toolbar: 56 px tall, 48 px touch targets */
+#toolbar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: linear-gradient(180deg, rgba(5,14,26,0.96), rgba(5,14,26,0.8)); border-bottom: 1px solid var(--border); display: flex; align-items: center; z-index: 2; }
+#toolbar::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent) 70%, transparent); box-shadow: var(--glow); }
+#toolbar .logo { width: 56px; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border); }
+#toolbar .logo div { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), #0b6b8f); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 700; color: #03070d; font-size: 15px; box-shadow: var(--glow); }
+.mode { margin: 0 10px; padding: 7px 18px; font-family: var(--font-head); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #03070d; background: var(--accent); clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); box-shadow: var(--glow); }
+.ib { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: var(--accent); border-right: 1px solid var(--border); }
+.ib:first-of-type { border-left: 1px solid var(--border); }
+.ib svg { filter: drop-shadow(0 0 4px var(--accent)); }
+.ib.dim { color: var(--muted); }
+.ib.dim svg { filter: none; }
+.ib.up { background: rgba(31,209,249,0.16); }
+.tchip { display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 0 12px; height: 100%; border-right: 1px solid var(--border); }
+.tchip .v { font-family: var(--font-num); font-size: 15px; line-height: 1; display: flex; align-items: center; gap: 6px; }
+.tchip .v.warn { color: var(--warn); }
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+.pulse.warn { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+.tb-right { margin-left: auto; display: flex; height: 100%; }
+.chip { display: flex; align-items: center; gap: 8px; padding: 0 12px; border-left: 1px solid var(--border); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.chip b { color: var(--accent); font-family: var(--font-num); font-size: 14px; letter-spacing: 0; font-weight: 400; text-shadow: var(--glow); }
+.chip.menu { color: var(--accent); width: 48px; justify-content: center; padding: 0; }
+
+/* left strip: 60 px hex buttons */
+#strip { position: absolute; top: 68px; left: 10px; display: flex; flex-direction: column; gap: 6px; }
+#strip .hexb { width: 62px; height: 70px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: rgba(5,14,26,0.88); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+#strip .hexb::before { content: ''; position: absolute; inset: 2px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--border); z-index: -1; }
+#strip .hexb svg { width: 22px; height: 22px; color: var(--accent); filter: drop-shadow(0 0 4px var(--accent)); }
+#strip .hexb.on { color: var(--accent); background: rgba(31,209,249,0.22); }
+#strip .hexb.view { color: var(--text); }
+
+/* stats strip */
+#stats { position: absolute; top: 66px; left: 84px; display: flex; background: var(--panel); border: 1px solid var(--border); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+#stats .cell { padding: 5px 12px 4px; border-right: 1px solid var(--border); }
+#stats .cell:last-child { border-right: 0; }
+#stats .val { font-family: var(--font-num); font-size: 16px; line-height: 1.15; color: var(--accent); text-shadow: var(--glow); }
+#stats .val small { font-size: 9px; color: var(--muted); margin-left: 2px; font-family: var(--font-ui); text-shadow: none; }
+#stats .val.warn { color: var(--warn); text-shadow: 0 0 8px rgba(255,176,32,0.6); }
+#stats .val.ok { color: var(--ok); text-shadow: 0 0 8px rgba(53,240,168,0.6); }
+
+#validate { position: absolute; left: 84px; top: 112px; display: flex; gap: 10px; align-items: center; padding: 5px 10px; font-size: 12px; background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--warn); clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%); }
+#validate .t { font-family: var(--font-num); color: var(--muted); }
+#validate .t b { color: var(--text); font-weight: 400; }
+#coord { position: absolute; left: 84px; top: 146px; font-family: var(--font-num); font-size: 10px; color: var(--muted); }
+#coord b { color: var(--accent); font-weight: 400; }
+
+.callout { position: absolute; background: var(--panel); border: 1px solid var(--accent); box-shadow: var(--glow); padding: 3px 8px; font-family: var(--font-num); font-size: 10px; color: var(--muted); white-space: nowrap; clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 0 100%); }
+.callout b { color: var(--ok); font-weight: 400; }
+
+/* map zoom + locate fabs (touch) */
+#fabs { position: absolute; right: 344px; top: 66px; display: flex; flex-direction: column; gap: 6px; }
+#fabs div { width: 44px; height: 44px; background: var(--panel); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--accent); font-family: var(--font-num); font-size: 20px; clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px); }
+
+/* right drawer: 330 px, touch rows */
+#drawer { top: 56px; right: 0; bottom: 0; width: 330px; display: flex; flex-direction: column; border-top: 0; border-bottom: 0; border-right: 0; background: rgba(5,14,26,0.92); }
+#drawer .handle { position: absolute; left: -22px; top: 50%; width: 22px; height: 64px; margin-top: -32px; background: var(--panel); border: 1px solid var(--border); border-right: 0; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 12px; clip-path: polygon(0 8px, 100% 0, 100% 100%, 0 calc(100% - 8px)); }
+#tabs { display: flex; border-bottom: 1px solid var(--border); }
+#tabs div { flex: 1; text-align: center; padding: 12px 0; font-family: var(--font-head); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--border); }
+#tabs div:last-child { border-right: 0; }
+#tabs div.on { color: var(--accent); background: rgba(31,209,249,0.14); box-shadow: inset 0 -2px 0 var(--accent); text-shadow: var(--glow); }
+#tabs div span { font-family: var(--font-num); letter-spacing: 0; margin-left: 4px; }
+.item { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 8px; min-height: 44px; padding: 4px 12px; border-bottom: 1px solid rgba(31,209,249,0.08); }
+.item .idx { width: 20px; height: 20px; transform: rotate(45deg); background: var(--panel-solid); border: 1px solid var(--accent); color: var(--accent); font-family: var(--font-num); font-size: 10px; display: flex; align-items: center; justify-content: center; }
+.item .idx span { transform: rotate(-45deg); }
+.item .idx.l { border-color: var(--warn); color: var(--warn); }
+.item .idx.sel { background: var(--accent); color: #03070d; box-shadow: var(--glow); }
+.item .idx.rtl { border-color: var(--muted); color: var(--muted); }
+.item .name { font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 12px; }
+.item .sub { font-size: 10px; color: var(--muted); font-family: var(--font-num); }
+.item .r { text-align: right; font-family: var(--font-num); font-size: 11px; color: var(--muted); }
+.item .r b { color: var(--accent); font-weight: 400; display: block; font-size: 12px; }
+.item.sel { background: linear-gradient(90deg, rgba(31,209,249,0.18), transparent); border-left: 3px solid var(--accent); }
+.item.more { justify-content: center; color: var(--muted); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; display: flex; min-height: 34px; }
+#spacer { flex: 1; }
+
+#editor { border-top: 1px solid var(--accent); border-bottom: 1px solid var(--border); padding: 8px 12px 10px; background: rgba(31,209,249,0.05); }
+#editor .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.field { display: flex; flex-direction: column; gap: 4px; padding: 2px 0; }
+.field .in { display: flex; justify-content: space-between; align-items: center; min-height: 40px; border: 1px solid var(--border); padding: 0 10px; font-family: var(--font-num); font-size: 15px; background: rgba(0,0,0,0.3); clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.field .in small { color: var(--muted); font-family: var(--font-ui); font-size: 9px; letter-spacing: 0.1em; white-space: nowrap; margin-left: 6px; }
+.field .in.sel { border-color: var(--accent); color: var(--accent); text-shadow: var(--glow); }
+.stepper { display: flex; align-items: center; }
+.stepper .in { flex: 1; }
+.stepper .pm { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); color: var(--accent); font-family: var(--font-num); font-size: 18px; }
+.seg { display: flex; border: 1px solid var(--border); }
+.seg div { flex: 1; text-align: center; padding: 10px 0; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--border); }
+.seg div:last-child { border-right: 0; }
+.seg div.on { background: var(--accent); color: #03070d; font-weight: 700; box-shadow: var(--glow); }
+#editor .estats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 6px; }
+#editor .estats div { border: 1px solid var(--border); padding: 4px 6px; }
+#editor .estats .v { font-family: var(--font-num); font-size: 13px; color: var(--accent); }
+#editor .estats .v small { font-size: 9px; color: var(--muted); font-family: var(--font-ui); }
+
+#actions { display: flex; gap: 6px; padding: 8px 12px 10px; border-top: 1px solid var(--border); }
+#actions div { flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--border-hi); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+#actions .primary { background: var(--accent); color: #03070d; border-color: var(--accent); font-family: var(--font-head); font-weight: 700; flex: 2; box-shadow: var(--glow); }
+#actions .primary small { font-family: var(--font-ui); font-size: 9px; letter-spacing: 0.1em; font-weight: 600; opacity: 0.8; margin-top: 2px; }
+
+/* terrain profile: collapsed strip */
+#terrain { bottom: 20px; left: 84px; right: 344px; height: 118px; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+#terrain .ptitle { display: flex; align-items: center; justify-content: space-between; padding: 5px 10px; border-bottom: 1px solid var(--border); background: linear-gradient(90deg, rgba(31,209,249,0.14), transparent 70%); }
+#terrain .ptitle span:last-child { font-family: var(--font-num); font-size: 10px; color: var(--muted); }
+#terrain svg { position: absolute; left: 0; top: 26px; width: 100%; height: 92px; display: block; }
+</style>
+</head>
+<body>
+<div id="device">
+  <div id="bezel"></div>
+  <div id="screen">
+    <div id="status">
+      <span>14:32</span>
+      <div class="r">
+        <svg viewBox="0 0 24 24"><path d="M2 22h20L12 2z" opacity=".25"/><path d="M2 22h12V8z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 20l-9-9a12.7 12.7 0 0 1 18 0z"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="3" y="7" width="15" height="10" rx="1"/><rect x="19" y="10" width="2" height="4"/></svg>
+        <span>92%</span>
+      </div>
+    </div>
+    <div id="navpill"></div>
+    <div id="app">
+      <canvas id="map" width="1280" height="776"></canvas>
+      <div id="hex"></div>
+      <div id="vig"></div>
+
+      <div id="toolbar">
+        <div class="logo"><div>Q</div></div>
+        <div class="mode">Plan</div>
+        <div class="ib"><svg class="ic" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg></div>
+        <div class="ib"><svg class="ic" viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg></div>
+        <div class="ib up"><svg class="ic" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/><path d="M4 21h16"/></svg></div>
+        <div class="ib"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/><path d="M4 21h16"/></svg></div>
+        <div class="ib dim"><svg class="ic" viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/></svg></div>
+        <div class="tchip"><span class="lbl">Target</span><span class="v"><span class="pulse"></span>UAS-01</span></div>
+        <div class="tchip"><span class="lbl">Plan sync</span><span class="v warn"><span class="pulse warn"></span>MODIFIED</span></div>
+        <div class="tb-right">
+          <div class="chip">Op <b>BLUEFIN-14</b></div>
+          <div class="chip">Rev <b>07</b></div>
+          <div class="chip menu"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+        </div>
+      </div>
+
+      <div id="strip">
+        <div class="hexb view"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12l18-8-6 18-3-8z"/></svg>Fly</div>
+        <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6"/><path d="M4 21h16"/></svg>Takeoff</div>
+        <div class="hexb on"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6-6-6-11a6 6 0 0 1 12 0c0 5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg>Waypoint</div>
+        <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>ROI</div>
+        <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><path d="M8 4v16M16 4v16"/></svg>Pattern</div>
+        <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/><path d="M12 20v-6"/></svg>Return</div>
+        <div class="hexb"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><circle cx="12" cy="12" r="2"/></svg>Center</div>
+      </div>
+
+      <div id="stats">
+        <div class="cell"><div class="lbl">Dist</div><div class="val">4.2<small>km</small></div></div>
+        <div class="cell"><div class="lbl">Time</div><div class="val">12:40</div></div>
+        <div class="cell"><div class="lbl">Photos</div><div class="val">148</div></div>
+        <div class="cell"><div class="lbl">Batt</div><div class="val">1</div></div>
+        <div class="cell"><div class="lbl">Clearance</div><div class="val warn">42<small>m</small></div></div>
+        <div class="cell"><div class="lbl">Fence</div><div class="val ok">OK</div></div>
+      </div>
+      <div id="validate"><span class="t">WP <b>05</b></span><span>Terrain clearance 42 m below 50 m floor</span></div>
+      <div id="coord">MGRS <b>32T NU 4912 2178</b></div>
+
+      <div id="fabs"><div>+</div><div>−</div><div><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></div></div>
+
+      <div class="callout" style="left:690px;top:198px">WP 04 · SURVEY · <b>60 m AGL · 148 img</b></div>
+
+      <div id="drawer" class="panel">
+        <span class="brk tl"></span><span class="brk br"></span>
+        <div class="handle">◀</div>
+        <div id="tabs"><div class="on">Mission<span>7</span></div><div>Fence<span>1</span></div><div>Rally<span>2</span></div></div>
+        <div class="items">
+          <div class="item more">▲ Launch · Takeoff · WP 2 · WP 3</div>
+          <div class="item sel"><div class="idx sel"><span>4</span></div><div><div class="name">Survey · grid</div><div class="sub">9 transects · 148 images</div></div><div class="r"><b>60 m</b>2.1 km</div></div>
+        </div>
+        <div id="editor">
+          <div class="row">
+            <div class="field"><span class="lbl">Altitude</span><div class="stepper"><div class="pm">−</div><div class="in sel">60.0 <small>M</small></div><div class="pm">+</div></div></div>
+            <div class="field"><span class="lbl">Grid angle</span><div class="stepper"><div class="pm">−</div><div class="in">084 <small>DEG</small></div><div class="pm">+</div></div></div>
+            <div class="field"><span class="lbl">Spacing</span><div class="in">28.5 <small>M</small></div></div>
+            <div class="field"><span class="lbl">Trigger dist</span><div class="in">19.0 <small>M</small></div></div>
+          </div>
+          <div class="field"><span class="lbl">Altitude reference</span><div class="seg"><div>AMSL</div><div class="on">AGL</div><div>Terrain</div></div></div>
+          <div class="field"><span class="lbl">Camera</span><div class="in">EO/IR 20 MP · 70/60 % <small>EDIT</small></div></div>
+          <div class="estats">
+            <div><div class="lbl">Photos</div><div class="v">148</div></div>
+            <div><div class="lbl">GSD</div><div class="v">1.6<small> cm</small></div></div>
+            <div><div class="lbl">Area</div><div class="v">0.21<small> km²</small></div></div>
+            <div><div class="lbl">Time</div><div class="v">06:12</div></div>
+          </div>
+        </div>
+        <div class="items">
+          <div class="item"><div class="idx"><span>5</span></div><div><div class="name">Waypoint</div><div class="sub">4922 2179 · trigger stop</div></div><div class="r"><b>60 m</b>264 m</div></div>
+          <div class="item"><div class="idx"><span>6</span></div><div><div class="name">Waypoint</div><div class="sub">4918 2168 · loiter 10 s</div></div><div class="r"><b>60 m</b>246 m</div></div>
+          <div class="item"><div class="idx rtl"><span>7</span></div><div><div class="name">Return</div><div class="sub">RTL alt 80 m · land</div></div><div class="r"><b>80 m</b>412 m</div></div>
+        </div>
+        <div id="spacer"></div>
+        <div id="actions"><div>Save</div><div class="primary">Upload<small>UAS-01 · 7 items</small></div></div>
+      </div>
+
+      <div id="terrain" class="panel">
+        <div class="ptitle"><span class="head">Terrain</span><span>0 – 4.2 km · min 42 m ▼</span></div>
+        <svg id="profile" viewBox="0 0 1300 92" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="map.js"></script>
+<script src="profile.js"></script>
+<script>
+const cs = getComputedStyle(document.documentElement);
+const v = n => cs.getPropertyValue(n).trim();
+drawTacticalMap(document.getElementById('map'), {
+  bg: v('--map-bg'), terrainHi: v('--map-hi'), contour: v('--map-contour'), water: v('--map-water'),
+  road: v('--map-road'), building: v('--map-building'), grid: v('--map-grid'), gridText: v('--map-gridtext'),
+  fence: v('--accent2'), mission: v('--accent'), missionActive: v('--ok'), survey: v('--accent'),
+  home: v('--warn'), trail: v('--accent'), ring: 'rgba(31,209,249,0.25)', vehicle: v('--accent'),
+  friend: v('--ok'), unknown: v('--warn'), font: 'Share Tech Mono',
+}, { seed: 11, vehicle: null, handles: true, selectedWp: 3, currentWp: 3, grid: 160,
+     waypoints: [[0.3, 0.7], [0.32, 0.46], [0.42, 0.36], [0.54, 0.3], [0.66, 0.42], [0.64, 0.66], [0.5, 0.78]],
+     home: [0.3 * 1280, 0.7 * 776 + 40] });
+drawTerrainProfile(document.getElementById('profile'), {
+  grid: v('--border'), label: v('--muted'), terrainFill: 'rgba(31,140,190,0.15)', terrain: v('--muted'),
+  floor: v('--border-hi'), mission: v('--accent'), missionGlow: 'rgba(31,209,249,0.35)', warn: v('--warn'),
+  wp: v('--accent'), wpSel: v('--ok'), wpText: v('--text'), bg: v('--map-bg'), font: 'Share Tech Mono',
+}, { selected: 3, fontSize: 14 });
+</script>
+</body>
+</html>

@@ -6,8 +6,8 @@ const path = require('path');
   const pages = process.argv.slice(2);
   const browser = await chromium.launch();
   for (const p of pages) {
-    const [file, out, w, h] = p.split(':');
-    const page = await browser.newPage({ viewport: { width: +w || 1920, height: +h || 1080 }, deviceScaleFactor: 1 });
+    const [file, out, w, h, scale] = p.split(':');
+    const page = await browser.newPage({ viewport: { width: +w || 1920, height: +h || 1080 }, deviceScaleFactor: +scale || 1 });
     await page.goto('file://' + path.resolve(file));
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(300);
