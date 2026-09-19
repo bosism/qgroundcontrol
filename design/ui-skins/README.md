@@ -52,6 +52,47 @@ Mono. `map.js` draws a procedural dark map (contours, grid, fence, mission,
 tracks) and `profile.js` the terrain profile strip, so no tiles or network are
 needed.
 
+## Real build: the `custom/` Stealth skin
+
+`custom/` at the repository root is a working custom build (derived from
+`custom-example/`) that applies the Stealth Ops palette. It compiles and runs;
+`screenshots/real/` holds screenshots of the actual application with a mock
+PX4 quadrotor connected:
+
+| Screenshot | What it is |
+|------------|------------|
+| `screenshots/real/stealth-real-tablet-fly.jpg` | Fly view, 1280×800 at 1.35× scale (7-inch tablet emulation) |
+| `screenshots/real/stealth-real-tablet-plan.jpg` | Plan view, same emulation |
+| `screenshots/real/stealth-real-desktop-fly.jpg` | Fly view, 1920×1080 |
+| `screenshots/real/stealth-real-desktop-plan.jpg` | Plan view, 1920×1080 |
+
+Only the palette is applied at this stage (see `custom/README.md`), so the
+widgets are still stock. The map background is a locally generated dark
+terrain tile set served by `preview/tileserver.py`, because the preview
+machine had no access to map tile servers.
+
+### Reproducing the preview
+
+1. Build with a Qt 6.10 SDK as usual (`cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug`).
+   A Debug build is required for the built-in MockLink vehicle.
+2. Run `preview/shoot.py NAME WIDTH HEIGHT SCALE 0 plan` as root with an
+   unprivileged `qgc` user present. It starts Xvfb and the tile server, seeds
+   QGC's settings (dark scheme, custom tile URL, auto-connecting MockLink,
+   saved window geometry, first-run prompt suppressed) and captures Fly and
+   Plan views. `PLAN_CLICK` / `PLAN_ITEM` give the screen coordinates of the
+   view-selector logo and its Plan entry for the chosen size.
+
+### Building a preview without the Qt installer
+
+`preview/build-with-conda-qt.sh` is the build used for the screenshots above
+on a machine without the Qt online installer. It uses conda-forge
+`qt6-main` 6.11.2 plus the module packages, with QtLocation, QtSpeech,
+QtHttpServer and QtConnectivity built from the Qt git mirrors into the same
+prefix, and needs three workarounds: `QGC_QT_MAXIMUM_VERSION` raised,
+libsecret disabled in qtkeychain (conda's glib headers shadow the system
+ones) and conda's libiconv added to the link line. None of that applies to a
+normal Qt SDK build.
+
 ## How this maps onto QGC
 
 QGC skins are done as a custom build (`custom-example/`), which gives three
