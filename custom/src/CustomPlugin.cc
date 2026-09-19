@@ -73,6 +73,19 @@ void CustomPlugin::_addSettingsEntry(const QString &title, const char *qmlFile, 
     );
 }
 
+bool CustomPlugin::overrideSettingsGroupVisibility(const QString &name)
+{
+    // Mission planning, 3D viewer, ADS-B feeds and RTK corrections are outside the FPV use case.
+    static const QStringList hiddenGroups = {
+        QStringLiteral("PlanView"),
+        QStringLiteral("Viewer3D"),
+        QStringLiteral("ADSBVehicleManager"),
+        QStringLiteral("NTRIP"),
+        QStringLiteral("RTK"),
+    };
+    return !hiddenGroups.contains(name);
+}
+
 void CustomPlugin::adjustSettingMetaData(const QString& settingsGroup, FactMetaData& metaData, bool &userVisible)
 {
     QGCCorePlugin::adjustSettingMetaData(settingsGroup, metaData, userVisible);

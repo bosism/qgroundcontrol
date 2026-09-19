@@ -63,6 +63,8 @@ qgc_set_qt_resource_alias(
     ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthHud.qml
     ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthTelemetryBar.qml
     ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthTelemetryCell.qml
+    ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthStatusBoard.qml
+    ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthStatusRow.qml
 )
 
 qt_add_qml_module(CustomModule
@@ -73,6 +75,8 @@ qt_add_qml_module(CustomModule
         ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthHud.qml
         ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthTelemetryBar.qml
         ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthTelemetryCell.qml
+        ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthStatusBoard.qml
+        ${CMAKE_CURRENT_SOURCE_DIR}/res/Custom/Widgets/StealthStatusRow.qml
     NO_PLUGIN
 )
 
