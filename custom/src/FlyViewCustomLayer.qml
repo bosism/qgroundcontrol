@@ -17,6 +17,12 @@ Item {
 
     property real _toolsMargin: ScreenTools.defaultFontPixelWidth * 0.75
 
+    // The stock top-right inset comes from the multi-vehicle panel, which keeps its
+    // height even when hidden. Only honour it while that panel can actually show.
+    property bool _multiVehiclePanelShown: QGroundControl.multiVehicleManager.vehicles.count > 1 &&
+                                           QGroundControl.settingsManager.appSettings.enableMultiVehiclePanel.rawValue
+    property real _topInset: _multiVehiclePanelShown ? parentToolInsets.topEdgeRightInset : 0
+
     QGCToolInsets {
         id:                     _toolInsets
         leftEdgeTopInset:       _root.parentToolInsets.leftEdgeTopInset
@@ -38,7 +44,7 @@ Item {
         anchors.right:      parent.right
         anchors.rightMargin: _root._toolsMargin
         anchors.top:        parent.top
-        anchors.topMargin:  _root.parentToolInsets.topEdgeRightInset + _root._toolsMargin
+        anchors.topMargin:  _root._topInset + _root._toolsMargin
         visible:            !QGroundControl.videoManager.fullScreen
     }
 }

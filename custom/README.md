@@ -18,7 +18,16 @@ minimum needed to see the skin in a real build:
   label-over-value cells (altitude, ground speed, vertical speed, distance to
   home, heading, flight time) in the monospace font.
 
-Both replace the stock bottom-right row of the Fly View through
+- Stealth status board (`res/Custom/Widgets/StealthStatusBoard.qml`): go/no-go
+  rows for GPS, battery, EKF, sensors and ready state with square lamps, placed
+  top-right through the overridden `src/FlyViewCustomLayer.qml`.
+- FPV feature trim: Plan view only in advanced mode (`src/SelectViewDropdown.qml`),
+  no orbit/ROI guided actions, mission status bar, offline map tools or PX4 log
+  transfer; sensor calibration pages advanced-only; Plan View, 3D viewer, ADS-B
+  and RTK/NTRIP settings groups hidden (see `CustomOptions` and
+  `CustomPlugin::overrideSettingsGroupVisibility`).
+
+The HUD and telemetry bar replace the stock bottom-right row of the Fly View through
 `src/FlyViewBottomRightRowLayout.qml`, which the URL interceptor in
 `CustomPlugin.cc` substitutes for the stock file (any stock QML file can be
 overridden the same way by placing a copy under the `/Custom/qml` resource

@@ -63,11 +63,12 @@ PX4 quadrotor connected:
 |------------|------------|
 | `screenshots/real/stealth-real-tablet-fly.jpg` | Fly view, 1280×800 at 1.35× scale (7-inch tablet emulation) |
 | `screenshots/real/stealth-real-tablet-plan.jpg` | Plan view, same emulation |
+| `screenshots/real/stealth-real-tablet-menu.jpg` | View selector on the tablet layout, Plan hidden |
 | `screenshots/real/stealth-real-desktop-fly.jpg` | Fly view, 1920×1080 |
 | `screenshots/real/stealth-real-desktop-plan.jpg` | Plan view, 1920×1080 |
 
-The Fly view screenshots show the palette plus the first two Stealth widgets,
-the HUD and the telemetry bar (see `custom/README.md`); everything else is
+The Fly view screenshots show the palette plus the first Stealth widgets:
+the HUD, the telemetry bar and the status board (see `custom/README.md`); everything else is
 still stock. The map background is a locally generated dark
 terrain tile set served by `preview/tileserver.py`, because the preview
 machine had no access to map tile servers.
