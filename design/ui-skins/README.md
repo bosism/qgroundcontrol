@@ -64,6 +64,11 @@ PX4 quadrotor connected:
 | `screenshots/real/stealth-real-tablet-fly.jpg` | Fly view, 1280×800 at 1.35× scale (7-inch tablet emulation) |
 | `screenshots/real/stealth-real-tablet-plan.jpg` | Plan view, same emulation |
 | `screenshots/real/stealth-real-tablet-menu.jpg` | View selector on the tablet layout, Plan hidden |
+| `screenshots/real/stealth-real-tablet-settings.jpg` | Application Settings, FPV-trimmed page list |
+| `screenshots/real/stealth-real-tablet-settings-flyview.jpg` | Fly View settings without guided/mission items |
+| `screenshots/real/stealth-real-tablet-battery.jpg` | Battery indicator popup |
+| `screenshots/real/stealth-real-tablet-flightmode.jpg` | Flight mode popup |
+| `screenshots/real/stealth-real-tablet-configure.jpg` | Vehicle Configuration (Safety only outside advanced mode) |
 | `screenshots/real/stealth-real-desktop-fly.jpg` | Fly view, 1920×1080 |
 | `screenshots/real/stealth-real-desktop-plan.jpg` | Plan view, 1920×1080 |
 

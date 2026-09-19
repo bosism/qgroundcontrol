@@ -40,6 +40,10 @@ Colours come from `QGCPalette` only, so the NVG or Neon palettes from
 - Battery indicator shows voltage by default.
 - Video is the main window and the map picture-in-picture starts hidden
   (seeded once in `CustomPlugin::init`; the user's later choice is kept).
+- Application Settings pages for Plan View, ADS-B, Maps, NTRIP/RTK, Remote ID
+  and PX4 log transfer are advanced-mode only (`src/SettingsPagesModel.qml`,
+  a copy of the generated page list with `pageVisible` gated). Guided-flight
+  and mission items are removed from the Fly View settings page.
 - Plan view, Analyze, firmware upgrade and sensor calibration are advanced-mode
   only. The Plan View, 3D viewer, ADS-B, NTRIP/RTK, Maps, Flight Map, Offline
   Maps and Remote ID settings groups are hidden until advanced mode is switched

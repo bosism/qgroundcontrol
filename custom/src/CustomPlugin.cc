@@ -5,7 +5,7 @@
 #include "QGCMAVLink.h"
 #include "AppSettings.h"
 #include "BatteryIndicatorSettings.h"
-#include "QGroundControlQmlGlobal.h"
+#include "FlyViewSettings.h"
 #include "SettingsManager.h"
 #include "StealthLinkStats.h"
 #include "ADSBVehicleManagerSettings.h"
@@ -64,7 +64,7 @@ void CustomPlugin::init()
     // Small-tablet FPV: video is the main window and the map picture-in-picture starts hidden.
     // These are plain QML global settings, so only seed them when the user has not chosen yet.
     QSettings settings;
-    settings.beginGroup(QGroundControlQmlGlobal::kQmlGlobalKeyName);
+    settings.beginGroup(QStringLiteral("QGCQml"));   // QGroundControlQmlGlobal::kQmlGlobalKeyName is private
     if (!settings.contains(QStringLiteral("MainFlyWindowIsMap"))) {
         settings.setValue(QStringLiteral("MainFlyWindowIsMap"), false);
     }
@@ -176,6 +176,26 @@ void CustomPlugin::adjustSettingMetaData(const QString& settingsGroup, FactMetaD
         } else if (metaData.name() == AppSettings::indoorPaletteName) {
             // The Stealth skin only styles the dark scheme, so make it the default.
             metaData.setRawDefaultValue(1);
+            return;
+        } else if (metaData.name() == AppSettings::enableMultiVehiclePanelName) {
+            metaData.setRawDefaultValue(false);
+            userVisible = false;
+            return;
+        }
+    } else if (settingsGroup == FlyViewSettings::settingsGroup) {
+        // Guided-flight and mission settings have no use in a manual FPV build.
+        static const QStringList hiddenFlyViewSettings = {
+            FlyViewSettings::guidedMinimumAltitudeName,
+            FlyViewSettings::guidedMaximumAltitudeName,
+            FlyViewSettings::maxGoToLocationDistanceName,
+            FlyViewSettings::forwardFlightGoToLocationLoiterRadName,
+            FlyViewSettings::goToLocationRequiresConfirmInGuidedName,
+            FlyViewSettings::enableAutomaticMissionPopupsName,
+            FlyViewSettings::keepMapCenteredOnVehicleName,
+            FlyViewSettings::showLogReplayStatusBarName,
+        };
+        if (hiddenFlyViewSettings.contains(metaData.name())) {
+            userVisible = false;
             return;
         }
     } else if (settingsGroup == BatteryIndicatorSettings::settingsGroup) {

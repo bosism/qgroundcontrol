@@ -7,6 +7,7 @@
         <file alias="QGroundControl/FlyView/FlyViewCustomLayer.qml">src/FlyViewCustomLayer.qml</file>
         <file alias="QGroundControl/FlyView/FlyViewToolStripActionList.qml">src/FlyViewToolStripActionList.qml</file>
         <file alias="QGroundControl/Toolbar/SelectViewDropdown.qml">src/SelectViewDropdown.qml</file>
+        <file alias="QGroundControl/AppSettings/SettingsPagesModel.qml">src/SettingsPagesModel.qml</file>
     </qresource>
     <qresource prefix="/Custom/res">
         <file alias="QGCLogoFull.svg">res/Images/QGCLogoFull.svg</file>
