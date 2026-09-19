@@ -10,6 +10,7 @@ class CustomOptions;
 class CustomPlugin;
 class CustomSettings;
 class QQmlApplicationEngine;
+class StealthLinkStats;
 
 Q_DECLARE_LOGGING_CATEGORY(CustomLog)
 
@@ -73,8 +74,11 @@ public:
 
     // Overrides from QGCCorePlugin
 
+    void init() final;
     void cleanup() final;
     QGCOptions *options() final { return _options; }
+    /// Feeds every received MAVLink message to the link latency probe.
+    bool mavlinkMessage(Vehicle *vehicle, LinkInterface *link, const mavlink_message_t &message) final;
     /// This allows you to override/hide QGC Application settings
     void adjustSettingMetaData(const QString &settingsGroup, FactMetaData &metaData, bool &userVisible) final;
     /// Hides whole settings groups (and their settings pages) that an FPV build does not need.
@@ -90,7 +94,10 @@ private slots:
 private:
     void _addSettingsEntry(const QString& title, const char* qmlFile, const char* iconFile = nullptr);
 
+    void _setAdvancedGroupsVisible(bool visible);
+
     CustomOptions *_options = nullptr;
+    StealthLinkStats *_linkStats = nullptr;
     QQmlApplicationEngine *_qmlEngine = nullptr;
     class CustomOverrideInterceptor *_selector = nullptr;
     QVariantList _customSettingsList; // Not to be mixed up with QGCCorePlugin implementation

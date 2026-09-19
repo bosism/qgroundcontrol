@@ -3,6 +3,8 @@ import QtQuick
 import QGroundControl
 import QGroundControl.Controls
 
+import Custom.Stealth
+
 /// Stealth Ops go/no-go board: one row per subsystem with a square status lamp.
 Item {
     id:     control
@@ -21,7 +23,9 @@ Item {
     property int _ekfState:     !_ekf ? 0 : (_ekf.goodAttitudeEstimate.rawValue && _ekf.goodHorizPosRelEstimate.rawValue ? 1 : 2)
     property int _sensorState:  !_vehicle ? 0 : (_vehicle.allSensorsHealthy ? 1 : 3)
     property int _readyState:   !_vehicle ? 0 : (!_vehicle.readyToFlyAvailable ? 2 : (_vehicle.readyToFly ? 1 : 3))
-    property bool _allGo:       _gpsState === 1 && _battState === 1 && _sensorState === 1 && _readyState === 1
+    property int _linkState:    !_vehicle || !StealthLink.latencyValid ? 0 :
+                                (StealthLink.latencyMs < 100 ? 1 : (StealthLink.latencyMs < 250 ? 2 : 3))
+    property bool _allGo:       _gpsState === 1 && _battState === 1 && _sensorState === 1 && _readyState === 1 && _linkState !== 3
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
@@ -92,8 +96,13 @@ Item {
         }
         StealthStatusRow {
             label:  qsTr("Battery")
-            value:  control._battery ? control._battery.percentRemaining.valueString + "% · " + control._battery.voltage.valueString + " " + control._battery.voltage.units : "--"
+            value:  control._battery ? control._battery.voltage.valueString + " " + control._battery.voltage.units + " · " + control._battery.percentRemaining.valueString + "%" : "--"
             lamp:   control.lampColor(control._battState)
+        }
+        StealthStatusRow {
+            label:  qsTr("Link")
+            value:  control._vehicle ? (StealthLink.latencyValid ? StealthLink.latencyMs + " ms" : qsTr("no ping reply")) : "--"
+            lamp:   control.lampColor(control._linkState)
         }
         StealthStatusRow {
             label:  qsTr("EKF")

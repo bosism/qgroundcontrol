@@ -87,6 +87,8 @@ qt_add_qml_module(CustomModule
 set(CUSTOM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CustomPlugin.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CustomPlugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/StealthLinkStats.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/StealthLinkStats.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutoPilotPlugin/CustomAutoPilotPlugin.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutoPilotPlugin/CustomAutoPilotPlugin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FirmwarePlugin/CustomFirmwarePlugin.cc

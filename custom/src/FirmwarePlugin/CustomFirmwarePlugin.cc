@@ -22,11 +22,21 @@ AutoPilotPlugin* CustomFirmwarePlugin::autopilotPlugin(Vehicle *vehicle) const
 const QVariantList& CustomFirmwarePlugin::toolIndicators(const Vehicle *vehicle)
 {
     if (_toolIndicatorList.size() == 0) {
-        // First call the base class to get the standard QGC list. This way we are guaranteed to always get
-        // any new toolbar indicators which are added upstream in our custom build.
+        // Start from the stock list so upstream additions still appear, then drop what a
+        // small-tablet FPV pilot does not need: GPS, remote ID, gimbal, ESC and multi-vehicle
+        // indicators. Telemetry and RC link, battery and joystick stay.
         _toolIndicatorList = FirmwarePlugin::toolIndicators(vehicle);
-        // Then specifically remove the RC RSSI indicator.
-        _toolIndicatorList.removeOne(QVariant::fromValue(QUrl::fromUserInput("qrc:/qml/QGroundControl/Toolbar/RCRSSIIndicator.qml")));
+        static const QStringList removed = {
+            QStringLiteral("qrc:/qml/QGroundControl/Toolbar/VehicleGPSIndicator.qml"),
+            QStringLiteral("qrc:/qml/QGroundControl/Toolbar/GPSResilienceIndicator.qml"),
+            QStringLiteral("qrc:/qml/QGroundControl/Toolbar/RemoteIDIndicator.qml"),
+            QStringLiteral("qrc:/qml/QGroundControl/Toolbar/GimbalIndicator.qml"),
+            QStringLiteral("qrc:/qml/QGroundControl/Toolbar/EscIndicator.qml"),
+            QStringLiteral("qrc:/qml/QGroundControl/Toolbar/MultiVehicleSelector.qml"),
+        };
+        for (const QString &url : removed) {
+            (void) _toolIndicatorList.removeOne(QVariant::fromValue(QUrl::fromUserInput(url)));
+        }
     }
 
     return _toolIndicatorList;

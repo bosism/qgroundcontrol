@@ -5,6 +5,7 @@
     <qresource prefix="/Custom/qml">
         <file alias="QGroundControl/FlyView/FlyViewBottomRightRowLayout.qml">src/FlyViewBottomRightRowLayout.qml</file>
         <file alias="QGroundControl/FlyView/FlyViewCustomLayer.qml">src/FlyViewCustomLayer.qml</file>
+        <file alias="QGroundControl/FlyView/FlyViewToolStripActionList.qml">src/FlyViewToolStripActionList.qml</file>
         <file alias="QGroundControl/Toolbar/SelectViewDropdown.qml">src/SelectViewDropdown.qml</file>
     </qresource>
     <qresource prefix="/Custom/res">

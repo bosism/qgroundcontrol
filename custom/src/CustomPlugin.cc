@@ -4,6 +4,21 @@
 #include "QGCPalette.h"
 #include "QGCMAVLink.h"
 #include "AppSettings.h"
+#include "BatteryIndicatorSettings.h"
+#include "QGroundControlQmlGlobal.h"
+#include "SettingsManager.h"
+#include "StealthLinkStats.h"
+#include "ADSBVehicleManagerSettings.h"
+#include "FlightMapSettings.h"
+#include "MapsSettings.h"
+#include "NTRIPSettings.h"
+#include "OfflineMapsSettings.h"
+#include "PlanViewSettings.h"
+#include "RemoteIDSettings.h"
+#include "RTKSettings.h"
+#include "Viewer3DSettings.h"
+
+#include <QtCore/QSettings>
 
 #include <QtCore/QApplicationStatic>
 #include <QtQml/QQmlApplicationEngine>
@@ -37,6 +52,37 @@ CustomPlugin::CustomPlugin(QObject *parent)
 
     _showAdvancedUI = false;
     (void) connect(this, &QGCCorePlugin::showAdvancedUIChanged, this, &CustomPlugin::_advancedChanged);
+
+    // Created here so the QML singleton exists whenever the engine is created; pinging starts in init().
+    _linkStats = new StealthLinkStats(this);
+}
+
+void CustomPlugin::init()
+{
+    QGCCorePlugin::init();
+
+    // Small-tablet FPV: video is the main window and the map picture-in-picture starts hidden.
+    // These are plain QML global settings, so only seed them when the user has not chosen yet.
+    QSettings settings;
+    settings.beginGroup(QGroundControlQmlGlobal::kQmlGlobalKeyName);
+    if (!settings.contains(QStringLiteral("MainFlyWindowIsMap"))) {
+        settings.setValue(QStringLiteral("MainFlyWindowIsMap"), false);
+    }
+    if (!settings.contains(QStringLiteral("IsPIPVisible"))) {
+        settings.setValue(QStringLiteral("IsPIPVisible"), false);
+    }
+    settings.endGroup();
+
+    _linkStats->start();
+}
+
+bool CustomPlugin::mavlinkMessage(Vehicle *vehicle, LinkInterface *link, const mavlink_message_t &message)
+{
+    Q_UNUSED(vehicle); Q_UNUSED(link);
+    if (_linkStats) {
+        _linkStats->handleMessage(message);
+    }
+    return true;
 }
 
 QGCCorePlugin *CustomPlugin::instance()
@@ -57,6 +103,27 @@ void CustomPlugin::_advancedChanged(bool changed)
 {
     // Firmware Upgrade page is only show in Advanced mode
     emit _options->showFirmwareUpgradeChanged(changed);
+    _setAdvancedGroupsVisible(changed);
+}
+
+void CustomPlugin::_setAdvancedGroupsVisible(bool visible)
+{
+    // Settings pages an FPV pilot on a small tablet does not need day to day. They come back
+    // in Advanced Mode (view menu, tap the version text).
+    SettingsManager *sm = SettingsManager::instance();
+    if (!sm) {
+        return;
+    }
+    const QList<SettingsGroup*> groups = {
+        sm->planViewSettings(), sm->viewer3DSettings(), sm->adsbVehicleManagerSettings(),
+        sm->ntripSettings(), sm->rtkSettings(), sm->mapsSettings(), sm->flightMapSettings(),
+        sm->offlineMapsSettings(), sm->remoteIDSettings(),
+    };
+    for (SettingsGroup *group : groups) {
+        if (group) {
+            group->setUserVisible(visible);
+        }
+    }
 }
 
 void CustomPlugin::_addSettingsEntry(const QString &title, const char *qmlFile, const char *iconFile)
@@ -75,15 +142,20 @@ void CustomPlugin::_addSettingsEntry(const QString &title, const char *qmlFile, 
 
 bool CustomPlugin::overrideSettingsGroupVisibility(const QString &name)
 {
-    // Mission planning, 3D viewer, ADS-B feeds and RTK corrections are outside the FPV use case.
-    static const QStringList hiddenGroups = {
+    // Mission planning, 3D viewer, ADS-B feeds, RTK corrections, maps and Remote ID are
+    // advanced-mode only in this build (see _setAdvancedGroupsVisible for the runtime toggle).
+    static const QStringList advancedGroups = {
         QStringLiteral("PlanView"),
         QStringLiteral("Viewer3D"),
         QStringLiteral("ADSBVehicleManager"),
         QStringLiteral("NTRIP"),
         QStringLiteral("RTK"),
+        QStringLiteral("Maps"),
+        QStringLiteral("FlightMap"),
+        QStringLiteral("OfflineMaps"),
+        QStringLiteral("RemoteID"),
     };
-    return !hiddenGroups.contains(name);
+    return advancedGroups.contains(name) ? showAdvancedUI() : true;
 }
 
 void CustomPlugin::adjustSettingMetaData(const QString& settingsGroup, FactMetaData& metaData, bool &userVisible)
@@ -103,6 +175,12 @@ void CustomPlugin::adjustSettingMetaData(const QString& settingsGroup, FactMetaD
             return;
         } else if (metaData.name() == AppSettings::indoorPaletteName) {
             // The Stealth skin only styles the dark scheme, so make it the default.
+            metaData.setRawDefaultValue(1);
+            return;
+        }
+    } else if (settingsGroup == BatteryIndicatorSettings::settingsGroup) {
+        if (metaData.name() == BatteryIndicatorSettings::valueDisplayName) {
+            // FPV pilots read pack voltage, not a percentage estimate.
             metaData.setRawDefaultValue(1);
             return;
         }
@@ -178,6 +256,7 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
 {
     _qmlEngine = QGCCorePlugin::createQmlApplicationEngine(parent);
     _qmlEngine->addImportPath(QStringLiteral("qrc:/qml"));
+    (void) qmlRegisterSingletonInstance("Custom.Stealth", 1, 0, "StealthLink", _linkStats);
     _selector = new CustomOverrideInterceptor();
     _qmlEngine->addUrlInterceptor(_selector);
 

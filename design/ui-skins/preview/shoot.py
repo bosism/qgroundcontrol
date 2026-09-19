@@ -5,7 +5,8 @@ usage: shoot.py NAME WIDTH HEIGHT SCALE FAKEMOBILE(0/1) [plan]
 
 Environment: QGC_BIN (built binary), QGC_QT_PREFIX (Qt install used to build it),
 QGC_PREVIEW_ROOT (where shots/ is written), PLAN_CLICK / PLAN_ITEM (x,y of the
-view-selector logo and the Plan entry, in screen pixels).
+view-selector logo and the Plan entry, in screen pixels), CLICKS (a ; separated
+list of x,y,delay,shotname steps run after the Fly view shot).
 Requires Xvfb, xdotool, ImageMagick (import), Pillow, and an unprivileged user
 "qgc" because QGC refuses to run as root.
 """
@@ -146,6 +147,13 @@ def main():
         run(f'DISPLAY={DISPLAY} xdotool mousemove {px} {py} click 1')
         time.sleep(6)
         shot(f'{name}-plan.png')
+    # optional click script: CLICKS="x,y,delay,shotname;x,y,delay,shotname;..."
+    for step in [c for c in os.environ.get('CLICKS', '').split(';') if c.strip()]:
+        cx, cy, delay, sname = step.split(',')
+        run(f'DISPLAY={DISPLAY} xdotool mousemove {cx} {cy} click 1')
+        time.sleep(float(delay))
+        if sname:
+            shot(f'{name}-{sname}.png')
     app.terminate()
     try:
         app.wait(10)
