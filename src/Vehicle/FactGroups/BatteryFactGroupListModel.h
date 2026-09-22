@@ -27,6 +27,7 @@ class BatteryFactGroup : public FactGroupWithId
     Q_PROPERTY(Fact *current            READ current            CONSTANT)
     Q_PROPERTY(Fact *mahConsumed        READ mahConsumed        CONSTANT)
     Q_PROPERTY(Fact *percentRemaining   READ percentRemaining   CONSTANT)
+    Q_PROPERTY(Fact *percentRemainingEstimated READ percentRemainingEstimated CONSTANT)
     Q_PROPERTY(Fact *timeRemaining      READ timeRemaining      CONSTANT)
     Q_PROPERTY(Fact *timeRemainingStr   READ timeRemainingStr   CONSTANT)
     Q_PROPERTY(Fact *chargeState        READ chargeState        CONSTANT)
@@ -35,10 +36,15 @@ class BatteryFactGroup : public FactGroupWithId
 public:
     explicit BatteryFactGroup(uint32_t batteryId, QObject *parent = nullptr);
 
+    /// Voltage-only state of charge for the hardcoded 6S Li-ion pack. Blends the resting and
+    /// in-flight curves by throttle. Returns NaN when packVoltage is NaN.
+    static double estimatePercentRemaining(double packVoltage, double throttlePct);
+
     Fact *function() { return &_batteryFunctionFact; }
     Fact *type() { return &_batteryTypeFact; }
     Fact *voltage() { return &_voltageFact; }
     Fact *percentRemaining() { return &_percentRemainingFact; }
+    Fact *percentRemainingEstimated() { return &_percentRemainingEstimatedFact; }
     Fact *mahConsumed() { return &_mahConsumedFact; }
     Fact *current() { return &_currentFact; }
     Fact *temperature() { return &_temperatureFact; }
@@ -65,6 +71,8 @@ private:
     Fact _mahConsumedFact = Fact(0, QStringLiteral("mahConsumed"), FactMetaData::valueTypeDouble);
     Fact _temperatureFact = Fact(0, QStringLiteral("temperature"), FactMetaData::valueTypeDouble);
     Fact _percentRemainingFact = Fact(0, QStringLiteral("percentRemaining"), FactMetaData::valueTypeDouble);
+    Fact _percentRemainingEstimatedFact =
+        Fact(0, QStringLiteral("percentRemainingEstimated"), FactMetaData::valueTypeBool);
     Fact _timeRemainingFact = Fact(0, QStringLiteral("timeRemaining"), FactMetaData::valueTypeDouble);
     Fact _timeRemainingStrFact = Fact(0, QStringLiteral("timeRemainingStr"), FactMetaData::valueTypeString);
     Fact _chargeStateFact = Fact(0, QStringLiteral("chargeState"), FactMetaData::valueTypeUint8);

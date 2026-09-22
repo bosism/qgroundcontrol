@@ -261,10 +261,11 @@ Item {
 
             function getBatteryPercentageText() {
                 if (!isNaN(battery.percentRemaining.rawValue)) {
+                    let prefix = battery.percentRemainingEstimated.rawValue ? "~" : ""
                     if (battery.percentRemaining.rawValue > 98.9) {
-                        return qsTr("100%")
+                        return prefix + qsTr("100%")
                     } else {
-                        return battery.percentRemaining.valueString + battery.percentRemaining.units
+                        return prefix + battery.percentRemaining.valueString + battery.percentRemaining.units
                     }
                 } else if (!isNaN(battery.voltage.rawValue)) {
                     return battery.voltage.valueString + battery.voltage.units
@@ -398,7 +399,7 @@ Item {
                     }
 
                     LabelledLabel {
-                        label:      qsTr("Remaining")
+                        label:      object.percentRemainingEstimated.rawValue ? qsTr("Remaining (est.)") : qsTr("Remaining")
                         labelText:  object.percentRemaining.valueString + " " + object.percentRemaining.units
                         visible:    batteryValuesAvailable.percentRemainingAvailable
                     }

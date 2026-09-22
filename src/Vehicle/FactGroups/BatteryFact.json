@@ -39,6 +39,12 @@
     "units":            "%"
 },
 {
+    "name":             "percentRemainingEstimated",
+    "shortDesc":        "Percent Estimated",
+    "type":             "bool",
+    "default":          false
+},
+{
     "name":             "mahConsumed",
     "shortDesc":        "Consumed",
     "type":             "double",
