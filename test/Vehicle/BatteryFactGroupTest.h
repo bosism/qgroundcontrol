@@ -11,5 +11,7 @@ private slots:
     void _estimateCurve();
     void _batteryStatusPassThrough();
     void _batteryStatusEstimated();
+    void _batteryStatusSettleHold();
     void _batteryStatusNoVoltage();
+    void _batteryStatusDropout();
 };

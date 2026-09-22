@@ -10,7 +10,9 @@ namespace {
 // Voltage-only state-of-charge model for the 6S Li-ion 10 Ah pack, fitted from flight logs with the
 // ArduPilot BattEstimate sigmoid: soc = c1 * (1 - 1 / (1 + (v / c2)^c4)^c3), v = per-cell volts.
 constexpr double kCellCount = 6.0;
-constexpr double kHoverThrottlePct = 50.0;  // throttle at which the in-flight curve applies fully
+constexpr double kHoverCurrentAmps = 25.0;    // measured hover current; the in-flight curve applies fully here
+constexpr double kHoverThrottlePct = 22.0;    // measured hover throttle output, used when current is unreported
+constexpr double kMinValidPackVoltage = 6.0;  // below this the reading is a telemetry glitch, not a battery
 
 struct SocCurve
 {
@@ -97,14 +99,22 @@ BatteryFactGroup::BatteryFactGroup(uint32_t batteryId, QObject *parent)
     (void) connect(&_timeRemainingFact, &Fact::rawValueChanged, this, &BatteryFactGroup::_timeRemainingChanged);
 }
 
-double BatteryFactGroup::estimatePercentRemaining(double packVoltage, double throttlePct)
+double BatteryFactGroup::_inFlightWeight(double currentAmps, double throttlePct)
 {
-    if (qIsNaN(packVoltage)) {
+    if (!qIsNaN(currentAmps)) {
+        return std::clamp(currentAmps / kHoverCurrentAmps, 0.0, 1.0);
+    }
+    const double throttle = qIsNaN(throttlePct) ? 0.0 : throttlePct;
+    return std::clamp(throttle / kHoverThrottlePct, 0.0, 1.0);
+}
+
+double BatteryFactGroup::estimatePercentRemaining(double packVoltage, double currentAmps, double throttlePct)
+{
+    if (qIsNaN(packVoltage) || packVoltage < kMinValidPackVoltage) {
         return qQNaN();
     }
     const double cellVoltage = packVoltage / kCellCount;
-    const double throttle = qIsNaN(throttlePct) ? 0.0 : throttlePct;
-    const double inFlightWeight = std::clamp(throttle / kHoverThrottlePct, 0.0, 1.0);
+    const double inFlightWeight = _inFlightWeight(currentAmps, throttlePct);
     return ((1.0 - inFlightWeight) * socFromCellVoltage(kRestingCurve, cellVoltage)) +
            (inFlightWeight * socFromCellVoltage(kInFlightCurve, cellVoltage));
 }
@@ -187,8 +197,18 @@ void BatteryFactGroup::_handleBatteryStatus(Vehicle *vehicle, const mavlink_mess
     mahConsumed()->setRawValue((batteryStatus.current_consumed == -1) ? qQNaN() : batteryStatus.current_consumed);
     if (batteryStatus.battery_remaining == -1) {
         const double throttlePct = vehicle ? vehicle->throttlePct()->rawValue().toDouble() : 0.0;
-        percentRemaining()->setRawValue(estimatePercentRemaining(totalVoltage, throttlePct));
-        percentRemainingEstimated()->setRawValue(!qIsNaN(totalVoltage));
+        const double currentAmps = current()->rawValue().toDouble();
+        double estimate = estimatePercentRemaining(totalVoltage, currentAmps, throttlePct);
+        if (qIsNaN(estimate)) {
+            _lastLoadedEstimate = qQNaN();
+        } else if (_inFlightWeight(currentAmps, throttlePct) > 0.0) {
+            _lastLoadedEstimate = estimate;
+            _settleTimer.start();
+        } else if (!qIsNaN(_lastLoadedEstimate) && _settleTimer.isValid() && _settleTimer.elapsed() < _settleTimeMs) {
+            estimate = _lastLoadedEstimate;
+        }
+        percentRemaining()->setRawValue(estimate);
+        percentRemainingEstimated()->setRawValue(!qIsNaN(estimate));
     } else {
         percentRemaining()->setRawValue(batteryStatus.battery_remaining);
         percentRemainingEstimated()->setRawValue(false);

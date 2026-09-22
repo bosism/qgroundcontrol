@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QtCore/QElapsedTimer>
+
 #include "FactGroupListModel.h"
 
 class BatteryFactGroupListModel : public FactGroupListModel
@@ -37,8 +39,9 @@ public:
     explicit BatteryFactGroup(uint32_t batteryId, QObject *parent = nullptr);
 
     /// Voltage-only state of charge for the hardcoded 6S Li-ion pack. Blends the resting and
-    /// in-flight curves by throttle. Returns NaN when packVoltage is NaN.
-    static double estimatePercentRemaining(double packVoltage, double throttlePct);
+    /// in-flight curves by load: reported current if available (NaN = not reported), else throttle.
+    /// Returns NaN when packVoltage is NaN or implausibly low.
+    static double estimatePercentRemaining(double packVoltage, double currentAmps, double throttlePct);
 
     Fact *function() { return &_batteryFunctionFact; }
     Fact *type() { return &_batteryTypeFact; }
@@ -60,6 +63,10 @@ private slots:
     void _timeRemainingChanged(const QVariant &value);
 
 private:
+    friend class BatteryFactGroupTest;
+
+    static double _inFlightWeight(double currentAmps, double throttlePct);
+
     void _handleHighLatency(Vehicle *vehicle, const mavlink_message_t &message);
     void _handleHighLatency2(Vehicle *vehicle, const mavlink_message_t &message);
     void _handleBatteryStatus(Vehicle *vehicle, const mavlink_message_t &message);
@@ -77,4 +84,10 @@ private:
     Fact _timeRemainingStrFact = Fact(0, QStringLiteral("timeRemainingStr"), FactMetaData::valueTypeString);
     Fact _chargeStateFact = Fact(0, QStringLiteral("chargeState"), FactMetaData::valueTypeUint8);
     Fact _instantPowerFact = Fact(0, QStringLiteral("instantPower"), FactMetaData::valueTypeDouble);
+
+    // Pack voltage recovers for several seconds after the load drops, so the last loaded estimate is held
+    // for _settleTimeMs before the resting curve takes over.
+    double _lastLoadedEstimate = qQNaN();
+    QElapsedTimer _settleTimer;
+    int _settleTimeMs = 15000;
 };
